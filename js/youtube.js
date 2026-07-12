@@ -141,37 +141,57 @@
       .catch(function () { return placeholder(id); });
   }
 
+  /* Run fn over items with at most `limit` in flight at once, preserving order.
+     Keeps large no-key bulk-adds from hammering the metadata service. */
+  function mapLimit(items, limit, fn) {
+    return new Promise(function (resolve) {
+      if (!items.length) return resolve([]);
+      var results = new Array(items.length);
+      var idx = 0, completed = 0;
+      function launch() {
+        while (idx < items.length && (idx - completed) < limit) {
+          (function (i) {
+            Promise.resolve(fn(items[i], i))
+              .then(function (r) { results[i] = r; })
+              .catch(function () { results[i] = null; })
+              .then(function () {
+                completed++;
+                if (completed === items.length) resolve(results);
+                else launch();
+              });
+          })(idx++);
+        }
+      }
+      launch();
+    });
+  }
+
   /* Resolve metadata for many ids. onEach(meta) is called as each resolves,
-     so the UI can report progress. Returns a Promise of all metas. */
+     so the UI can report progress. Returns a Promise of all metas, in order. */
   YT.fetchMetaBatch = function (ids, apiKey, onEach) {
     onEach = onEach || function () {};
 
+    // With a key: one batched Data API call per 50 ids (cheap + reliable).
+    // Build a combined id→meta map; any id the API can't resolve (or if the
+    // key is bad) falls through to the no-key providers below.
+    var apiMapP = Promise.resolve({});
     if (apiKey) {
-      // Chunk into groups of 50 for the Data API; fall back per-chunk if it fails.
       var chunks = [];
       for (var i = 0; i < ids.length; i += 50) chunks.push(ids.slice(i, i + 50));
-      return Promise.all(chunks.map(function (chunk) {
-        return viaDataApi(chunk, apiKey).then(function (map) {
-          return Promise.all(chunk.map(function (id) {
-            var meta = map[id];
-            if (meta && meta.title) { onEach(meta); return meta; }
-            // Video existed but API returned nothing for it (deleted/private) —
-            // still try the no-key providers before giving up.
-            return fetchOne(id).then(function (m) { onEach(m); return m; });
-          }));
-        }).catch(function () {
-          return Promise.all(chunk.map(function (id) {
-            return fetchOne(id).then(function (m) { onEach(m); return m; });
-          }));
-        });
-      })).then(function (groups) {
-        return groups.reduce(function (a, b) { return a.concat(b); }, []);
+      apiMapP = Promise.all(chunks.map(function (c) {
+        return viaDataApi(c, apiKey).catch(function () { return {}; });
+      })).then(function (maps) {
+        return maps.reduce(function (acc, m) { return Object.assign(acc, m); }, {});
       });
     }
 
-    return Promise.all(ids.map(function (id) {
-      return fetchOne(id).then(function (m) { onEach(m); return m; });
-    }));
+    return apiMapP.then(function (apiMap) {
+      return mapLimit(ids, 5, function (id) {
+        var m = apiMap[id];
+        if (m && m.title) { onEach(m); return m; }
+        return fetchOne(id).then(function (meta) { onEach(meta); return meta; });
+      });
+    });
   };
 
   /* Search the YouTube Data API. Resolves to an array of result objects. */
