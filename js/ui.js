@@ -36,8 +36,11 @@
     els.timeline.innerHTML = videos.map(function (v) {
       return (
         '<button class="card" data-id="' + esc(v.id) + '">' +
-          '<span class="card-thumb" style="background-image:url(\'' + esc(v.thumbnail || YT.thumbUrl(v.id)) + '\')"></span>' +
-          '<span class="card-title">' + esc(v.title) + '</span>' +
+          '<span class="card-thumb">' +
+            '<img src="' + esc(v.thumbnail || YT.thumbUrl(v.id)) + '" alt="" loading="lazy" decoding="async" ' +
+              'onerror="this.onerror=null;this.src=\'' + esc(YT.thumbUrl(v.id)) + '\'" />' +
+          '</span>' +
+          '<span class="card-title">' + esc(v.title || "Video") + '</span>' +
         '</button>'
       );
     }).join("");
@@ -45,10 +48,24 @@
 
   /* ===================== PLAYER ===================== */
   function openPlayer(video) {
-    els.playerTitle.textContent = video.title;
+    els.playerTitle.textContent = video.title || "Video";
     els.playerOverlay.classList.remove("hidden");
-    YT.play(video.id);
     lockScroll(true);
+    YT.play(video.id, {
+      // On end: never let YouTube's related-video end screen linger. Either
+      // advance to the next approved video, or return to the grid.
+      onEnded: function () {
+        if (Store.getSettings().autoplayNext) {
+          var next = Store.nextVisibleAfter(video.id);
+          if (next) { openPlayer(next); return; }
+        }
+        closePlayer();
+      },
+      onError: function () {
+        closePlayer();
+        toast("That video couldn't be played");
+      }
+    });
   }
 
   function closePlayer() {
@@ -137,6 +154,7 @@
     var s = Store.getSettings();
     els.childName.value = s.childName || "";
     els.apiKey.value = s.apiKey || "";
+    els.autoplayNext.checked = !!s.autoplayNext;
     els.pinInput.value = "";
   }
 
@@ -155,30 +173,34 @@
     }
 
     els.bulkAdd.disabled = true;
-    setAddStatus("Fetching " + newIds.length + " video(s)…", "");
+    var apiKey = Store.getSettings().apiKey;
 
-    var added = 0, failed = 0, done = 0;
-    newIds.forEach(function (id) {
-      YT.fetchMeta(id).then(function (meta) {
-        if (Store.addVideo(meta)) added++;
-      }).catch(function () {
-        // Still add it with a fallback title/thumbnail so it isn't lost.
-        if (Store.addVideo({ id: id, title: "YouTube video " + id, thumbnail: YT.thumbUrl(id) })) added++;
-        failed++;
-      }).then(function () {
-        done++;
-        if (done === newIds.length) finishBulk(added, failed, dupes);
-      });
+    var added = 0, noTitle = 0, done = 0;
+    setAddStatus("Fetching 0 of " + newIds.length + "…", "");
+
+    YT.fetchMetaBatch(newIds, apiKey, function (meta) {
+      // Called as each video's metadata resolves.
+      if (Store.addVideo(meta)) {
+        added++;
+        if (!meta.title) noTitle++;
+      }
+      done++;
+      setAddStatus("Fetching " + done + " of " + newIds.length + "…", "");
+      renderManageList();
+    }).then(function () {
+      finishBulk(added, noTitle, dupes);
+    }).catch(function () {
+      finishBulk(added, noTitle, dupes);
     });
   }
 
-  function finishBulk(added, failed, dupes) {
+  function finishBulk(added, noTitle, dupes) {
     els.bulkAdd.disabled = false;
     els.bulkInput.value = "";
     var msg = "Added " + added + " video(s).";
-    if (failed) msg += " " + failed + " had no title (added anyway).";
+    if (noTitle) msg += " " + noTitle + " need a title — add one in Videos.";
     if (dupes) msg += " " + dupes + " were already added.";
-    setAddStatus(msg, "ok");
+    setAddStatus(msg, noTitle ? "" : "ok");
     renderManageList();
   }
 
@@ -227,43 +249,77 @@
   }
 
   /* ---- Manage tab ---- */
+  var editingId = null;   // id of the video currently in inline-edit mode
+
   function renderManageList() {
     var all = Store.getVideos();
     var showBlocked = els.showBlocked.checked;
     var keywords = Store.getKeywords();
+    var q = (els.manageSearch.value || "").trim().toLowerCase();
 
     var list = all.filter(function (v) {
-      if (showBlocked) return true;
-      return !v.blocked;
+      if (!showBlocked && v.blocked) return false;
+      if (q) {
+        var hay = ((v.title || "") + " " + (v.channel || "")).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
     });
 
-    els.manageCount.textContent = all.length + " video(s) total";
+    els.manageCount.textContent = all.length + " video(s) total" +
+      (q || !showBlocked ? " — showing " + list.length : "");
 
-    if (!list.length) {
+    if (!all.length) {
       els.manageList.innerHTML = '<p class="empty-list">No videos here yet. Add some from the Add tab.</p>';
+      return;
+    }
+    if (!list.length) {
+      els.manageList.innerHTML = '<p class="empty-list">No videos match your filter.</p>';
       return;
     }
 
     els.manageList.innerHTML = list.map(function (v) {
+      if (v.id === editingId) return editorRow(v);
       var kw = Store.matchesKeyword(v, keywords);
       var badges = "";
       if (v.blocked) badges += '<span class="badge blocked-badge">Blocked</span> ';
+      if (!v.title) badges += '<span class="badge warn-badge">Needs a title</span> ';
       if (kw) badges += '<span class="badge keyword-badge">Hidden by word</span>';
       return (
         '<div class="manage-row' + (v.blocked ? " is-blocked" : "") + '" data-id="' + esc(v.id) + '">' +
-          '<img src="' + esc(v.thumbnail || YT.thumbUrl(v.id)) + '" alt="" loading="lazy" />' +
+          '<img src="' + esc(v.thumbnail || YT.thumbUrl(v.id)) + '" alt="" loading="lazy" ' +
+            'onerror="this.onerror=null;this.src=\'' + esc(YT.thumbUrl(v.id)) + '\'" />' +
           '<div class="manage-info">' +
-            '<div class="m-title">' + esc(v.title) + "</div>" +
+            '<div class="m-title' + (v.title ? "" : " untitled") + '">' + esc(v.title || "(no title)") + "</div>" +
             '<div class="m-channel">' + esc(v.channel || "") + "</div>" +
-            (badges ? "<div>" + badges + "</div>" : "") +
+            (badges ? '<div class="badge-row">' + badges + "</div>" : "") +
           "</div>" +
           '<div class="row-actions">' +
+            '<button class="icon-btn edit-video">Edit</button>' +
             '<button class="icon-btn toggle-block">' + (v.blocked ? "Unblock" : "Block") + "</button>" +
             '<button class="icon-btn delete-video">Delete</button>' +
           "</div>" +
         "</div>"
       );
     }).join("");
+  }
+
+  function editorRow(v) {
+    return (
+      '<div class="manage-row editing" data-id="' + esc(v.id) + '">' +
+        '<img src="' + esc(v.thumbnail || YT.thumbUrl(v.id)) + '" alt="" loading="lazy" />' +
+        '<div class="manage-info">' +
+          '<label class="edit-label">Title</label>' +
+          '<input class="edit-title" type="text" value="' + esc(v.title) + '" placeholder="Video title" />' +
+          '<label class="edit-label">Channel</label>' +
+          '<input class="edit-channel" type="text" value="' + esc(v.channel || "") + '" placeholder="Channel (optional)" />' +
+        "</div>" +
+        '<div class="row-actions">' +
+          '<button class="icon-btn save-edit">Save</button>' +
+          '<button class="icon-btn cancel-edit">Cancel</button>' +
+        "</div>" +
+      "</div>"
+    );
   }
 
   /* ---- Keywords tab ---- */
@@ -398,11 +454,27 @@
 
     // Manage tab.
     els.showBlocked.addEventListener("change", renderManageList);
+    els.manageSearch.addEventListener("input", renderManageList);
     els.manageList.addEventListener("click", function (e) {
       var row = e.target.closest(".manage-row");
       if (!row) return;
       var id = row.dataset.id;
-      if (e.target.closest(".toggle-block")) {
+      if (e.target.closest(".save-edit")) {
+        Store.updateVideo(id, {
+          title: row.querySelector(".edit-title").value,
+          channel: row.querySelector(".edit-channel").value
+        });
+        editingId = null;
+        renderManageList();
+      } else if (e.target.closest(".cancel-edit")) {
+        editingId = null;
+        renderManageList();
+      } else if (e.target.closest(".edit-video")) {
+        editingId = id;
+        renderManageList();
+        var input = els.manageList.querySelector('.manage-row[data-id="' + id + '"] .edit-title');
+        if (input) { input.focus(); input.select(); }
+      } else if (e.target.closest(".toggle-block")) {
         var v = Store.getVideos().find(function (x) { return x.id === id; });
         Store.setBlocked(id, !(v && v.blocked));
         renderManageList();
@@ -411,6 +483,13 @@
           Store.removeVideo(id);
           renderManageList();
         }
+      }
+    });
+    els.manageList.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter") return;
+      var row = e.target.closest(".manage-row.editing");
+      if (row && e.target.classList.contains("edit-title")) {
+        row.querySelector(".save-edit").click();
       }
     });
 
@@ -429,6 +508,9 @@
 
     // Settings tab.
     els.childName.addEventListener("change", saveChildName);
+    els.autoplayNext.addEventListener("change", function () {
+      Store.updateSettings({ autoplayNext: els.autoplayNext.checked });
+    });
     els.pinSave.addEventListener("click", savePin);
     els.apiSave.addEventListener("click", saveApiKey);
     els.exportBtn.addEventListener("click", exportBackup);
@@ -473,6 +555,7 @@
         searchResults: $("search-results"),
         // manage
         showBlocked: $("show-blocked"),
+        manageSearch: $("manage-search"),
         manageCount: $("manage-count"),
         manageList: $("manage-list"),
         // keywords
@@ -481,6 +564,7 @@
         keywordList: $("keyword-list"),
         // settings
         childName: $("child-name"),
+        autoplayNext: $("autoplay-next"),
         pinInput: $("pin-input"),
         pinSave: $("pin-save"),
         apiKey: $("api-key"),

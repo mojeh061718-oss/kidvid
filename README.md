@@ -19,14 +19,23 @@ recommendation rabbit holes, no way to wander off into the rest of YouTube.
   thumbnails are fetched automatically, **no API key required**. If you add a
   free API key (see below), you also get an in‑app **Search YouTube** box to find
   and add videos by keyword.
-- **🎬 Videos** — see everything you've added; **Block** or **Delete** any video
-  with one tap.
+- **🎬 Videos** — see everything you've added; **filter** a large library by
+  title/channel, **Edit** a video's title (handy if a title didn't fetch, and it
+  drives keyword matching), or **Block**/**Delete** any video with one tap. Any
+  video whose title didn't fetch is flagged **“Needs a title.”**
 - **🚫 Blocked Words** — type a word like `peppa` and every video with that word
   in its title (or channel name) instantly disappears from the timeline — both
   the ones already added and any you add later. Remove the word to bring them
   back.
-- **⚙️ Settings** — set your child's name, change the PIN, add an optional API
-  key, and export/import a backup of your whole library.
+- **⚙️ Settings** — set your child's name, choose what happens when a video ends
+  (return to the grid — recommended — or autoplay the next one), change the PIN,
+  add an optional API key, and export/import a backup of your whole library.
+
+**Safe by design**
+- When a video ends, KidVid immediately leaves the player, so YouTube's
+  “related videos” end screen is never shown or tappable.
+- The child view has no search box, no channel links, and no recommendations —
+  only the videos you approved.
 
 Everything is stored **locally on the device** (browser `localStorage`). There is
 no account, no server, and nothing leaves the tablet except the calls to YouTube
@@ -88,6 +97,10 @@ assets/            App icons + make_icons.py (regenerates the PNGs)
 
 ## Notes & limits
 
+- Titles/thumbnails are fetched without an API key via a public metadata service
+  (noembed, with a fallback); if you set a YouTube Data API key, the official API
+  is used instead. If a title can't be fetched, the video is still added and
+  flagged **“Needs a title”** so you can type one in.
 - Keyword blocking matches the **title and channel name** we have on record for
   each video, case‑insensitively (`peppa` matches "Peppa Pig", "PEPPA", etc.).
 - Blocking is a one‑way gate the child can't undo — unblocking only happens in

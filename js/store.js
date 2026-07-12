@@ -11,7 +11,8 @@
     settings: {
       pin: "1234",
       apiKey: "",
-      childName: ""
+      childName: "",
+      autoplayNext: false
     }
   };
 
@@ -84,7 +85,7 @@
       if (Store.hasVideo(video.id)) return false;
       state.videos.unshift({
         id: video.id,
-        title: video.title || "Untitled video",
+        title: video.title || "",   // empty is allowed; the UI flags it as "needs a title"
         channel: video.channel || "",
         thumbnail: video.thumbnail || "",
         addedAt: video.addedAt || 0,
@@ -97,6 +98,22 @@
     setBlocked: function (id, blocked) {
       var v = state.videos.find(function (x) { return x.id === id; });
       if (v) { v.blocked = !!blocked; persist(); }
+    },
+
+    updateVideo: function (id, patch) {
+      var v = state.videos.find(function (x) { return x.id === id; });
+      if (!v) return;
+      if (typeof patch.title === "string") v.title = patch.title.trim() || v.title;
+      if (typeof patch.channel === "string") v.channel = patch.channel.trim();
+      persist();
+    },
+
+    /* The next visible video after `id` in the kid timeline (for autoplay-next). */
+    nextVisibleAfter: function (id) {
+      var vis = Store.getVisibleVideos();
+      var i = vis.findIndex(function (v) { return v.id === id; });
+      if (i === -1 || vis.length < 2) return null;
+      return vis[(i + 1) % vis.length];
     },
 
     removeVideo: function (id) {

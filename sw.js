@@ -1,6 +1,8 @@
 /* sw.js — caches the app shell so KidVid opens instantly and works offline.
+   Uses stale-while-revalidate: serve the cached copy immediately, then refresh
+   it in the background so code updates reach installed devices on the next open.
    (YouTube playback itself always needs a network connection.) */
-var CACHE = "kidvid-shell-v1";
+var CACHE = "kidvid-shell-v2";
 var SHELL = [
   "./",
   "./index.html",
@@ -41,12 +43,18 @@ self.addEventListener("fetch", function (e) {
   if (url.origin !== location.origin) return;
 
   e.respondWith(
-    caches.match(req).then(function (cached) {
-      return cached || fetch(req).then(function (res) {
-        return res;
-      }).catch(function () {
-        // Offline fallback for navigations: serve the app shell.
-        if (req.mode === "navigate") return caches.match("./index.html");
+    caches.open(CACHE).then(function (cache) {
+      return cache.match(req).then(function (cached) {
+        var network = fetch(req).then(function (res) {
+          if (res && res.status === 200 && res.type === "basic") {
+            cache.put(req, res.clone());
+          }
+          return res;
+        }).catch(function () {
+          // Offline: fall back to cache, then to the app shell for navigations.
+          return cached || (req.mode === "navigate" ? cache.match("./index.html") : undefined);
+        });
+        return cached || network;
       });
     })
   );

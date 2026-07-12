@@ -1,8 +1,8 @@
 /* youtube.js — everything that talks to YouTube:
    - parsing IDs out of pasted links
-   - fetching title/thumbnail via oEmbed (no API key required)
+   - fetching title/channel/thumbnail (CORS-safe, no API key required)
    - searching via the YouTube Data API (needs the parent's key)
-   - the IFrame player used in the kid view
+   - the IFrame player used in the kid view, with safe end-of-video handling
 */
 (function (global) {
   "use strict";
@@ -15,7 +15,7 @@
     input = input.trim();
 
     // Bare video id.
-    if (/^[A-Za-z0-9_-]{11}$/.test(input)) return input;
+    if (isId(input)) return input;
 
     var url;
     try {
@@ -31,10 +31,9 @@
       return isId(seg) ? seg : null;
     }
 
-    if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
-      if (url.searchParams.get("v") && isId(url.searchParams.get("v"))) {
-        return url.searchParams.get("v");
-      }
+    if (host === "youtube.com" || host === "m.youtube.com" ||
+        host === "music.youtube.com" || host === "youtube-nocookie.com") {
+      if (isId(url.searchParams.get("v"))) return url.searchParams.get("v");
       // /embed/ID, /shorts/ID, /live/ID, /v/ID
       var parts = url.pathname.split("/").filter(Boolean);
       var known = { embed: 1, shorts: 1, live: 1, v: 1 };
@@ -61,39 +60,132 @@
     return "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg";
   };
 
-  /* oEmbed gives us title + author (channel) with no API key and no quota. */
-  YT.fetchMeta = function (id) {
+  function placeholder(id) {
+    return { id: id, title: "", channel: "", thumbnail: YT.thumbUrl(id), addedAt: 0 };
+  }
+
+  function decodeEntities(str) {
+    if (!str) return "";
+    var el = document.createElement("textarea");
+    el.innerHTML = str;
+    return el.value;
+  }
+
+  /* ---- metadata: title + channel + thumbnail for known video IDs ----
+     YouTube's own oEmbed endpoint has no CORS headers, so we can't read it
+     from the browser directly. We use CORS‑enabled providers instead, and
+     always resolve to *something* (falling back to an editable placeholder)
+     so a video is never lost. */
+
+  // noembed.com — purpose-built, CORS + JSONP, no key.
+  function viaNoembed(id) {
     var watch = "https://www.youtube.com/watch?v=" + id;
-    var endpoint = "https://www.youtube.com/oembed?format=json&url=" + encodeURIComponent(watch);
-    return fetch(endpoint)
-      .then(function (res) {
-        if (!res.ok) throw new Error("Video not available (it may be private or removed).");
-        return res.json();
-      })
-      .then(function (data) {
+    return fetch("https://noembed.com/embed?url=" + encodeURIComponent(watch))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || d.error || !d.title) throw new Error(d && d.error ? d.error : "no data");
         return {
           id: id,
-          title: data.title || "Untitled video",
-          channel: data.author_name || "",
-          thumbnail: YT.thumbUrl(id),
+          title: decodeEntities(d.title),
+          channel: decodeEntities(d.author_name || ""),
+          thumbnail: d.thumbnail_url || YT.thumbUrl(id),
           addedAt: 0
         };
       });
+  }
+
+  // allorigins.win in front of YouTube's oEmbed — backup provider.
+  function viaAllOrigins(id) {
+    var oembed = "https://www.youtube.com/oembed?format=json&url=" +
+      encodeURIComponent("https://www.youtube.com/watch?v=" + id);
+    return fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(oembed))
+      .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+      .then(function (d) {
+        if (!d || !d.title) throw new Error("no data");
+        return {
+          id: id,
+          title: decodeEntities(d.title),
+          channel: decodeEntities(d.author_name || ""),
+          thumbnail: d.thumbnail_url || YT.thumbUrl(id),
+          addedAt: 0
+        };
+      });
+  }
+
+  // Official Data API (batched, 50 ids/request, 1 quota unit) when a key is set.
+  function viaDataApi(ids, apiKey) {
+    var url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" +
+      encodeURIComponent(ids.join(",")) + "&key=" + encodeURIComponent(apiKey);
+    return fetch(url).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) throw new Error(body && body.error && body.error.message || "API error");
+        var map = {};
+        (body.items || []).forEach(function (it) {
+          var s = it.snippet || {};
+          map[it.id] = {
+            id: it.id,
+            title: decodeEntities(s.title || ""),
+            channel: decodeEntities(s.channelTitle || ""),
+            thumbnail: (s.thumbnails && (s.thumbnails.medium || s.thumbnails.default) || {}).url || YT.thumbUrl(it.id),
+            addedAt: 0
+          };
+        });
+        return map;
+      });
+    });
+  }
+
+  function fetchOne(id) {
+    return viaNoembed(id)
+      .catch(function () { return viaAllOrigins(id); })
+      .catch(function () { return placeholder(id); });
+  }
+
+  /* Resolve metadata for many ids. onEach(meta) is called as each resolves,
+     so the UI can report progress. Returns a Promise of all metas. */
+  YT.fetchMetaBatch = function (ids, apiKey, onEach) {
+    onEach = onEach || function () {};
+
+    if (apiKey) {
+      // Chunk into groups of 50 for the Data API; fall back per-chunk if it fails.
+      var chunks = [];
+      for (var i = 0; i < ids.length; i += 50) chunks.push(ids.slice(i, i + 50));
+      return Promise.all(chunks.map(function (chunk) {
+        return viaDataApi(chunk, apiKey).then(function (map) {
+          return Promise.all(chunk.map(function (id) {
+            var meta = map[id];
+            if (meta && meta.title) { onEach(meta); return meta; }
+            // Video existed but API returned nothing for it (deleted/private) —
+            // still try the no-key providers before giving up.
+            return fetchOne(id).then(function (m) { onEach(m); return m; });
+          }));
+        }).catch(function () {
+          return Promise.all(chunk.map(function (id) {
+            return fetchOne(id).then(function (m) { onEach(m); return m; });
+          }));
+        });
+      })).then(function (groups) {
+        return groups.reduce(function (a, b) { return a.concat(b); }, []);
+      });
+    }
+
+    return Promise.all(ids.map(function (id) {
+      return fetchOne(id).then(function (m) { onEach(m); return m; });
+    }));
   };
 
   /* Search the YouTube Data API. Resolves to an array of result objects. */
   YT.search = function (query, apiKey) {
     if (!apiKey) return Promise.reject(new Error("No API key set."));
     var url = "https://www.googleapis.com/youtube/v3/search" +
-      "?part=snippet&type=video&safeSearch=strict&maxResults=20" +
+      "?part=snippet&type=video&safeSearch=strict&maxResults=24" +
       "&q=" + encodeURIComponent(query) +
       "&key=" + encodeURIComponent(apiKey);
     return fetch(url)
       .then(function (res) {
         return res.json().then(function (body) {
           if (!res.ok) {
-            var msg = body && body.error && body.error.message ? body.error.message : "Search failed.";
-            throw new Error(msg);
+            throw new Error(body && body.error && body.error.message || "Search failed.");
           }
           return body;
         });
@@ -114,17 +206,12 @@
       });
   };
 
-  function decodeEntities(str) {
-    var el = document.createElement("textarea");
-    el.innerHTML = str;
-    return el.value;
-  }
-
   /* ---------------- IFrame player ---------------- */
   var apiReady = false;
   var apiLoading = false;
   var readyCallbacks = [];
   var player = null;
+  var handlers = {};   // { onEnded, onError } for the currently playing video
 
   function loadApi() {
     if (apiReady || apiLoading) return;
@@ -145,8 +232,18 @@
     else { readyCallbacks.push(cb); loadApi(); }
   }
 
-  /* Play a video into #yt-player. Creates the player once, then reuses it. */
-  YT.play = function (videoId) {
+  function onState(e) {
+    // 0 === ended. Leave immediately so YouTube's end-screen of "related"
+    // videos is never shown or tappable.
+    if (e.data === global.YT.PlayerState.ENDED && handlers.onEnded) handlers.onEnded();
+  }
+  function onErr() {
+    if (handlers.onError) handlers.onError();
+  }
+
+  /* Play a video into #yt-player. opts: { onEnded, onError }. */
+  YT.play = function (videoId, opts) {
+    handlers = opts || {};
     whenReady(function () {
       if (player) {
         player.loadVideoById(videoId);
@@ -163,13 +260,16 @@
           iv_load_policy: 3   // hide video annotations
         },
         events: {
-          onReady: function (e) { e.target.playVideo(); }
+          onReady: function (e) { e.target.playVideo(); },
+          onStateChange: onState,
+          onError: onErr
         }
       });
     });
   };
 
   YT.stop = function () {
+    handlers = {};
     if (player && player.stopVideo) {
       try { player.stopVideo(); } catch (e) { /* ignore */ }
     }
