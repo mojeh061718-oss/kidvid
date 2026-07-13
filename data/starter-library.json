@@ -2,7 +2,7 @@
   "categories": [
     "Bluey",
     "Max & Ruby",
-    "Sofia the First",
+    "Disney Jr. Favorites",
     "Paw Patrol",
     "Calm & Cozy",
     "Gentle & Curious",
@@ -311,21 +311,153 @@
     },
     {
       "id": "jEqrPb_MTII",
-      "category": "Sofia the First",
+      "category": "Disney Jr. Favorites",
       "channel": "Disney Jr.",
       "title": "Every Time Sofia Meets a Disney Princess | Sofia the First | @disneyjr"
     },
     {
       "id": "RPD_zk1dE-Y",
-      "category": "Sofia the First",
+      "category": "Disney Jr. Favorites",
       "channel": "Disney Jr.",
       "title": "Sofia the First Season 1 Music Compilation! Theme Song & More! | 23 Minutes | @disneyjr"
     },
     {
       "id": "pwpYmeq-qXg",
-      "category": "Sofia the First",
+      "category": "Disney Jr. Favorites",
       "channel": "Disney Jr.",
       "title": "Sofia the First: Royal Magic Theme Song 10 Hour Loop! | @disneyjr"
+    },
+    {
+      "id": "tmPUBda2zAc",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Best Moments of Season 2 | 25 Minute Compilation | Mira, Royal Detective | @disneyjr"
+    },
+    {
+      "id": "Kl6ELuJldCA",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Fancy Nancy Best Moments! | 30 Minute Compilation | Fancy Nancy | @disneyjr"
+    },
+    {
+      "id": "_e4pNk-1kLI",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Alice's Wonderland Bakery Season 1 Best Moments | Compilation | @disneyjr"
+    },
+    {
+      "id": "FwjIctlLXgY",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Pet Rescue | 30 Minute Compilation | Doc McStuffins | @disneyjr"
+    },
+    {
+      "id": "eKLi73Igr_g",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Fancy It Yourself! Compilation | Fancy Nancy | Disney Junior"
+    },
+    {
+      "id": "yXGXaJb_8jw",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Every Disney Junior Lullaby EVER | Compilation | Disney Junior Music Lullabies | @disneyjr"
+    },
+    {
+      "id": "5Q12W7t2Av4",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Theme Songs! Compilation | @disneyjr"
+    },
+    {
+      "id": "u3C-7bWxh78",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Sing Along with Sofia, Lion Guard, and more! | Disney Junior Music Nursery Rhymes | Disney Junior"
+    },
+    {
+      "id": "9RXh-JEaOD0",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Nursery Rhymes Compilation! | Disney Junior Music Nursery Rhymes | Disney Junior"
+    },
+    {
+      "id": "dg9K9RlDqJ0",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Disney Junior Wonderful World of Songs | Mickey, Minnie, Kion & MORE! | Compilation | @disneyjr"
+    },
+    {
+      "id": "FSQ_dBuUPT0",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Mickey & Friends Disney Junior Music Nursery Rhymes | Compilation | Music Video | @disneyjr"
+    },
+    {
+      "id": "Z0yclCRvtas",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Doc McStuffins Best Music Videos! | Compilation | @disneyjr"
+    },
+    {
+      "id": "a1xZBJGKfRA",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Lambie Practices Social Distancing! | Doc McStuffins | Disney Junior"
+    },
+    {
+      "id": "Pkc0an_Tpi4",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Doc McStuffins Rhymes! Part 2 Compilation | Disney Junior Music Nursery Rhymes | Disney Junior"
+    },
+    {
+      "id": "V0ssUKaFT-E",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Doc McStuffins Birthday | 10 Years of Doc McStuffins | Disney Junior Fun Fest | @disneyjr"
+    },
+    {
+      "id": "tJ2Vp0udxp8",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Me & Mickey Season 1 | Full Season | Compilation | @disneyjr"
+    },
+    {
+      "id": "dvVvm6nGxTI",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Bow-Toons Adventures for 30 Minutes! | Compilation Part 1 | Minnie's Bow-Toons | @disneyjr"
+    },
+    {
+      "id": "RghiN8FMEXE",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Mickey Mouse Summer Fun | Me & Mickey | 30 Minute Compilation | @disneyjr"
+    },
+    {
+      "id": "2g4RX4OBs_I",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Mickey Mouse Roadster Racers | Happy Helpers Compilation! | @disneyjr"
+    },
+    {
+      "id": "_uUuO9TTNEI",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "90 Minutes of Minnie's Bow-Toons! | Compilation | @disneyjr"
+    },
+    {
+      "id": "WsSWzcb7MVQ",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Me & Mickey Season 2 | Full Season | 90+ Minute Compilation | @disneyjr"
+    },
+    {
+      "id": "VCZ-7GQP1Ko",
+      "category": "Disney Jr. Favorites",
+      "channel": "Disney Jr.",
+      "title": "Chip 'N Dale's Nutty Tales 30 Minute Compilation | Mickey Mouse, Minnie Mouse & MORE | @disneyjr"
     },
     {
       "id": "gbsgbcd_-2U",

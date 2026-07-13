@@ -20,21 +20,22 @@ recommendation rabbit holes, no way to wander off into the rest of YouTube.
   zoomed, or scrolled off-screen — only the video rows scroll.
 
 **Starter library (loads automatically on first open)**
-KidVid ships with ~150 hand-picked, **verified** videos — every one is from an
+KidVid ships with **175 hand-picked, verified** videos — every one is from an
 **official channel**, public, and **over 6 minutes** (most are 30 minutes to
-several hours of full-episode compilations) — with **25 videos in each show/
-category**:
+several hours of full-episode compilations) — with **25 videos in each of the 7
+rows**:
 - **Bluey** (Bluey Official) · **Max & Ruby** (Treehouse Direct) ·
   **Paw Patrol** (Nick Jr.)
 - **Calm & Cozy** low-stimulation: Sarah & Duck, Puffin Rock, Tumble Leaf
 - **Gentle & Curious** low-stimulation: Kiri & Lou, Stillwater, Trash Truck,
   Go! Go! Cory Carson, Chico Bon Bon, Mighty Express
 - **Dance Party**: Danny Go!, The Kiboomers, The Wiggles dance-alongs
-- **Sofia the First**: only 3 videos — Disney keeps full Sofia episodes off
-  YouTube (they're on Disney+), so the only *official* long-form Sofia content
-  is a few Disney Jr. compilations. (The rest of YouTube's "Sofia" results are
-  AI/content-farm fakes, which are deliberately excluded.) Add your own trusted
-  Sofia links to grow this row.
+- **Disney Jr. Favorites**: the 3 official Disney Jr. Sofia the First
+  compilations plus other official Disney Junior shows (Mira Royal Detective,
+  Fancy Nancy, Doc McStuffins, Alice's Wonderland Bakery, Mickey & Minnie,
+  Disney Junior songs). Disney keeps full Sofia episodes on Disney+, so this row
+  broadens to official Disney Jr. content rather than relying on the
+  AI/content-farm "Sofia" fakes that fill YouTube search (those are excluded).
 
 You can reload the pack any time from **Add → Starter pack**, and add your own
 videos into any category. The list was sourced and duration/availability-checked

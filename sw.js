@@ -2,7 +2,7 @@
    Uses stale-while-revalidate: serve the cached copy immediately, then refresh
    it in the background so code updates reach installed devices on the next open.
    (YouTube playback itself always needs a network connection.) */
-var CACHE = "kidvid-shell-v4";
+var CACHE = "kidvid-shell-v5";
 var SHELL = [
   "./",
   "./index.html",
