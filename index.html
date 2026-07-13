@@ -15,22 +15,25 @@
 </head>
 <body>
   <!-- ===================== KID VIEW ===================== -->
-  <header id="kid-header" class="kid-header">
-    <div class="brand">
-      <span class="brand-mark" aria-hidden="true">▶</span>
-      <span class="brand-name" id="brand-name">KidVid</span>
+  <div id="kid-view">
+    <header id="kid-header" class="kid-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">▶</span>
+        <span class="brand-name" id="brand-name">KidVid</span>
+      </div>
+      <button id="open-parent" class="gear-btn" aria-label="Parent menu" title="Parent menu">⚙️</button>
+    </header>
+
+    <main id="timeline" class="timeline" aria-live="polite">
+      <!-- category rows injected here -->
+    </main>
+
+    <div id="empty-state" class="empty-state hidden">
+      <div class="empty-emoji">🍿</div>
+      <h2>No videos yet</h2>
+      <p>Ask a grown-up to add some videos in the parent menu.</p>
+      <button id="empty-seed" class="btn primary">Load starter videos</button>
     </div>
-    <button id="open-parent" class="gear-btn" aria-label="Parent menu" title="Parent menu">⚙️</button>
-  </header>
-
-  <main id="timeline" class="timeline" aria-live="polite">
-    <!-- video cards injected here -->
-  </main>
-
-  <div id="empty-state" class="empty-state hidden">
-    <div class="empty-emoji">🍿</div>
-    <h2>No videos yet</h2>
-    <p>Ask a grown-up to add some videos in the parent menu.</p>
   </div>
 
   <!-- ===================== PLAYER ===================== -->
@@ -90,8 +93,18 @@
         <h2>Add by link</h2>
         <p class="muted">Paste one or more YouTube links (one per line). Titles and thumbnails are fetched automatically — no API key needed.</p>
         <textarea id="bulk-input" rows="4" placeholder="https://www.youtube.com/watch?v=...&#10;https://youtu.be/..."></textarea>
+        <label class="field-label">Add to category</label>
+        <input id="add-category" type="text" list="category-options" placeholder="e.g. Bluey (optional)" autocapitalize="words" autocomplete="off" />
+        <datalist id="category-options"></datalist>
         <button id="bulk-add" class="btn primary">Add videos</button>
         <div id="add-status" class="add-status"></div>
+
+        <hr class="sep" />
+
+        <h2>Starter pack</h2>
+        <p class="muted">Load a ready-made library of long (6+ minute) videos — Bluey, Paw Patrol, Max &amp; Ruby, Sofia the First, calm/low-stimulation shows, and dance-along videos — already sorted into categories.</p>
+        <button id="seed-btn" class="btn">Load starter videos</button>
+        <div id="seed-status" class="add-status"></div>
 
         <hr class="sep" />
 

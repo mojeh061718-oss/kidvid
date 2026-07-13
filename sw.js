@@ -2,7 +2,7 @@
    Uses stale-while-revalidate: serve the cached copy immediately, then refresh
    it in the background so code updates reach installed devices on the next open.
    (YouTube playback itself always needs a network connection.) */
-var CACHE = "kidvid-shell-v2";
+var CACHE = "kidvid-shell-v3";
 var SHELL = [
   "./",
   "./index.html",
@@ -12,7 +12,8 @@ var SHELL = [
   "./js/ui.js",
   "./js/app.js",
   "./manifest.json",
-  "./assets/icon.svg"
+  "./assets/icon.svg",
+  "./data/starter-library.json"
 ];
 
 self.addEventListener("install", function (e) {

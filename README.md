@@ -10,19 +10,36 @@ recommendation rabbit holes, no way to wander off into the rest of YouTube.
 
 ## What it does
 
-**For your child (the timeline)**
-- A colorful grid of large thumbnail cards — tap one to play it fullscreen.
-- A giant **← Back** button returns to the grid. That's the whole interface.
+**For your child (the home screen)**
+- Videos are grouped into **rows by category** — all the Bluey in one row, all
+  the Paw Patrol in another, all the dance videos in another, and so on. Swipe a
+  row sideways to see more; scroll down for the next show.
+- Tap any big thumbnail to play it fullscreen. A giant **← Back** button returns
+  to the rows. That's the whole interface.
+- The app is **locked like a kiosk**: it can't be pinch-zoomed, double-tap
+  zoomed, or scrolled off-screen — only the video rows scroll.
+
+**Starter library (loads automatically on first open)**
+KidVid ships with ~40 hand-picked, **verified** videos — every one is public,
+embeddable, and **over 6 minutes** (most are 30 minutes to several hours of
+full-episode compilations) — already sorted into categories:
+Bluey, Max & Ruby, Sofia the First, Paw Patrol, two low-stimulation categories
+(**Calm & Cozy**: Sarah & Duck, Puffin Rock, Tumble Leaf; **Gentle & Curious**:
+Kiri & Lou, Stillwater, Trash Truck, Go! Go! Cory Carson), and a **Dance Party**
+row (Danny Go! dance-along compilations). You can reload it any time from
+**Add → Starter pack**, and add your own videos into any category.
 
 **For you (the parent menu — behind a PIN)**
-- **➕ Add** — paste one or many YouTube links at once (one per line). Titles and
-  thumbnails are fetched automatically, **no API key required**. If you add a
-  free API key (see below), you also get an in‑app **Search YouTube** box to find
-  and add videos by keyword.
+- **➕ Add** — paste one or many YouTube links at once (one per line) and pick a
+  **category** to file them under (type a new name or choose an existing one).
+  Titles and thumbnails are fetched automatically, **no API key required**. If
+  you add a free API key (see below), you also get an in‑app **Search YouTube**
+  box. You can also reload the built-in **Starter pack** here.
 - **🎬 Videos** — see everything you've added; **filter** a large library by
-  title/channel, **Edit** a video's title (handy if a title didn't fetch, and it
-  drives keyword matching), or **Block**/**Delete** any video with one tap. Any
-  video whose title didn't fetch is flagged **“Needs a title.”**
+  title/channel, **Edit** a video's title, channel, or **category** (handy if a
+  title didn't fetch — the title also drives keyword matching), or
+  **Block**/**Delete** any video with one tap. Any video whose title didn't fetch
+  is flagged **“Needs a title.”**
 - **🚫 Blocked Words** — type a word like `peppa` and every video with that word
   in its title (or channel name) instantly disappears from the timeline — both
   the ones already added and any you add later. Remove the word to bring them
@@ -93,6 +110,9 @@ js/app.js          Boot + service‑worker registration
 manifest.json      PWA manifest (home‑screen install)
 sw.js              Service worker (offline app shell)
 assets/            App icons + make_icons.py (regenerates the PNGs)
+data/              starter-library.json (the built-in categorized videos)
+scripts/           discover.sh / verify.sh — how the starter list was sourced
+                   and checked (every video verified public, embeddable, >6 min)
 ```
 
 ## Notes & limits

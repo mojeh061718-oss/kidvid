@@ -1,0 +1,59 @@
+{
+  "categories": [
+    "Bluey",
+    "Max & Ruby",
+    "Sofia the First",
+    "Paw Patrol",
+    "Calm & Cozy",
+    "Gentle & Curious",
+    "Dance Party"
+  ],
+  "videos": [
+    { "id": "Xw3-3jQQMBk", "category": "Bluey", "channel": "Bluey - Official Channel", "title": "Bluey — 18 Full Episodes (2 Hours)" },
+    { "id": "zTE3pX-cjuo", "category": "Bluey", "channel": "Bluey - Official Channel", "title": "Bluey — Best of Bluey & Bingo (2 Hours)" },
+    { "id": "AMppfY8aF6M", "category": "Bluey", "channel": "Bluey - Official Channel", "title": "Bluey — Seasons 1, 2 & 3 Full Episodes" },
+    { "id": "MyNHdDNCNe0", "category": "Bluey", "channel": "Bluey - Official Channel", "title": "Bluey — Time to Have Fun Outdoors (3 Hours)" },
+    { "id": "KJFH7li0Uz8", "category": "Bluey", "channel": "Bluey's Bestest Friends - Official Channel", "title": "Bluey — Best Friends Moments, Full Episodes" },
+    { "id": "0RYe146FjJ8", "category": "Bluey", "channel": "Bluey - Official Channel", "title": "Bluey — Season 1 Full Episode Compilation (40 Min)" },
+
+    { "id": "f2iBHAOAq7g", "category": "Max & Ruby", "channel": "Treehouse Direct", "title": "Max & Ruby — Full Episodes! 10 Hour Marathon" },
+    { "id": "z3axYiVDfG4", "category": "Max & Ruby", "channel": "Treehouse Direct", "title": "Max & Ruby — Season 7 Full Marathon" },
+    { "id": "oMUaDi4-EaY", "category": "Max & Ruby", "channel": "Treehouse Direct", "title": "Max & Ruby — Season 5 Favorites Compilation" },
+    { "id": "qRkz_dx8YBQ", "category": "Max & Ruby", "channel": "Treehouse Direct", "title": "Max & Ruby — Full Episodes 17–20" },
+    { "id": "nh7BhnXHpjg", "category": "Max & Ruby", "channel": "Treehouse Direct", "title": "Max & Ruby — Full Episodes 14–16" },
+    { "id": "IReNQknyTJo", "category": "Max & Ruby", "channel": "Treehouse Direct", "title": "Max & Ruby — Winter Holiday Compilation" },
+
+    { "id": "jEqrPb_MTII", "category": "Sofia the First", "channel": "Disney Jr.", "title": "Sofia the First — Every Time Sofia Meets a Disney Princess (30 Min)" },
+    { "id": "RPD_zk1dE-Y", "category": "Sofia the First", "channel": "Disney Jr.", "title": "Sofia the First — Season 1 Music Compilation (23 Min)" },
+
+    { "id": "_Rzymuq4fmw", "category": "Paw Patrol", "channel": "Nick Jr.", "title": "PAW Patrol — Best of Seasons 1–4 (4 Hours)" },
+    { "id": "effKiMKHFBk", "category": "Paw Patrol", "channel": "Nick Jr.", "title": "PAW Patrol — Bedtime Healthy Habits & Sports (3 Hours)" },
+    { "id": "MZNTotsZXLY", "category": "Paw Patrol", "channel": "Nick Jr.", "title": "PAW Patrol — Bug Rescues & Adventures (2 Hours)" },
+    { "id": "gbsgbcd_-2U", "category": "Paw Patrol", "channel": "Nick Jr.", "title": "PAW Patrol — Rescue Wheels Adventures (2 Hours)" },
+    { "id": "QAbxKRskD1g", "category": "Paw Patrol", "channel": "Nick Jr.", "title": "PAW Patrol — Best Fire Rescue Moments (90 Min)" },
+    { "id": "Bfyey1W0e5E", "category": "Paw Patrol", "channel": "Nick Jr.", "title": "PAW Patrol — New Episodes Compilation (1 Hour)" },
+    { "id": "pOcqKfi2i1k", "category": "Paw Patrol", "channel": "PAW Patrol Official & Friends", "title": "PAW Patrol — Pups Save a Walrus, Full Episodes" },
+
+    { "id": "tavYEmefXgI", "category": "Calm & Cozy", "channel": "Sarah and Duck Official", "title": "Sarah & Duck — 1 Hour Marathon 1" },
+    { "id": "iHudbvlCuEw", "category": "Calm & Cozy", "channel": "Sarah and Duck Official", "title": "Sarah & Duck — 1 Hour Marathon 2" },
+    { "id": "wSnyb2eP1I0", "category": "Calm & Cozy", "channel": "Sarah and Duck Official", "title": "Sarah & Duck — 1 Hour Marathon 3" },
+    { "id": "tfitxi78Hq4", "category": "Calm & Cozy", "channel": "RTÉ KIDSjr", "title": "Puffin Rock — 1 Hour of Gentle Adventures" },
+    { "id": "wWVyAMcnZBk", "category": "Calm & Cozy", "channel": "RTÉ KIDSjr", "title": "Puffin Rock — Best of Season 1, Part 1" },
+    { "id": "4P1qRIFRKsE", "category": "Calm & Cozy", "channel": "Tumble Leaf - Official Channel", "title": "Tumble Leaf — 2 Hour Bedtime Lullaby" },
+
+    { "id": "CJ_eKqKeDWI", "category": "Gentle & Curious", "channel": "Kiri and Lou", "title": "Kiri & Lou — Endless Forest Adventures" },
+    { "id": "Ntbhn4K8jjo", "category": "Gentle & Curious", "channel": "Kiri and Lou", "title": "Kiri & Lou — Singalong Songs (40 Min)" },
+    { "id": "FHsIO8P0O90", "category": "Gentle & Curious", "channel": "Tumble Leaf - Official Channel", "title": "Tumble Leaf — The Music of Tumble Leaf" },
+    { "id": "mQh6LYUgK1k", "category": "Gentle & Curious", "channel": "Netflix Jr.", "title": "Go! Go! Cory Carson — Season 2 Full Episodes" },
+    { "id": "38xSshV0Bgg", "category": "Gentle & Curious", "channel": "Apple TV", "title": "Stillwater — Mind, Music & Movement" },
+    { "id": "_bk-37Xz2FE", "category": "Gentle & Curious", "channel": "Netflix Jr.", "title": "Trash Truck — A Trash Truck Christmas, Full Episode" },
+
+    { "id": "AuEIIRbXMHU", "category": "Dance Party", "channel": "Danny Go!", "title": "Danny Go! — Summer Dance Challenge (37 Min Movement Break)" },
+    { "id": "QcViUT80Zns", "category": "Dance Party", "channel": "Danny Go!", "title": "Danny Go! — Trains, Bananas, Candy Dance Compilation (20 Min)" },
+    { "id": "DzgwbVZr_VU", "category": "Dance Party", "channel": "Danny Go!", "title": "Danny Go! — Quicksand, Lava, Sharks Dance Compilation (18 Min)" },
+    { "id": "ryXVbqxT_6c", "category": "Dance Party", "channel": "Danny Go!", "title": "Danny Go! — Lava, Cowboys, Pirates Dance Compilation (17 Min)" },
+    { "id": "XDJHcUkkjHA", "category": "Dance Party", "channel": "Danny Go!", "title": "Danny Go! — Wiggle, Freeze, Spin Dance Compilation (16 Min)" },
+    { "id": "3a0Py4OQ9_M", "category": "Dance Party", "channel": "Danny Go!", "title": "Danny Go! — Lava, Robots, Twist Dance Compilation (15 Min)" },
+    { "id": "FVAXtpVleZg", "category": "Dance Party", "channel": "The Kiboomers", "title": "The Kiboomers — Freeze Dance Songs (14 Min)" }
+  ]
+}

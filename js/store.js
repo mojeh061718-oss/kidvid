@@ -6,7 +6,8 @@
   var KEY = "kidvid.v1";
 
   var DEFAULTS = {
-    videos: [],            // { id, title, channel, thumbnail, addedAt, blocked }
+    videos: [],            // { id, title, channel, thumbnail, addedAt, blocked, category }
+    categories: [],        // ordered list of category names (defines home-screen row order)
     blockedKeywords: [],   // lowercase strings
     settings: {
       pin: "1234",
@@ -20,24 +21,35 @@
     return JSON.parse(JSON.stringify(obj));
   }
 
+  var freshStart = false;
+
   function load() {
     try {
       var raw = localStorage.getItem(KEY);
-      if (!raw) return clone(DEFAULTS);
+      if (!raw) { freshStart = true; return clone(DEFAULTS); }
       var data = JSON.parse(raw);
       // Merge with defaults so new fields always exist.
       return {
         videos: Array.isArray(data.videos) ? data.videos : [],
+        categories: Array.isArray(data.categories) ? data.categories : [],
         blockedKeywords: Array.isArray(data.blockedKeywords) ? data.blockedKeywords : [],
         settings: Object.assign(clone(DEFAULTS.settings), data.settings || {})
       };
     } catch (e) {
       console.error("Failed to load state, starting fresh:", e);
+      freshStart = true;
       return clone(DEFAULTS);
     }
   }
 
   var state = load();
+
+  /* Register a category name (preserving first-seen order). */
+  function registerCategory(name) {
+    name = (name || "").trim();
+    if (name && state.categories.indexOf(name) === -1) state.categories.push(name);
+    return name;
+  }
 
   function persist() {
     try {
@@ -53,7 +65,9 @@
     getState: function () { return state; },
     getVideos: function () { return state.videos.slice(); },
     getKeywords: function () { return state.blockedKeywords.slice(); },
+    getCategories: function () { return state.categories.slice(); },
     getSettings: function () { return Object.assign({}, state.settings); },
+    isFresh: function () { return freshStart; },
 
     hasVideo: function (id) {
       return state.videos.some(function (v) { return v.id === id; });
@@ -79,20 +93,53 @@
       return false;
     },
 
+    /* Videos grouped into home-screen rows: one group per non-empty category
+       (in category order), with any uncategorized videos as a final group. */
+    getVisibleByCategory: function () {
+      var visible = Store.getVisibleVideos();
+      var groups = {};
+      var uncategorized = [];
+      visible.forEach(function (v) {
+        var c = v.category || "";
+        if (!c) { uncategorized.push(v); return; }
+        (groups[c] = groups[c] || []).push(v);
+      });
+      // Emit known categories in order, then any stragglers, then uncategorized.
+      var order = state.categories.slice();
+      Object.keys(groups).forEach(function (c) {
+        if (order.indexOf(c) === -1) order.push(c);
+      });
+      var rows = order.filter(function (c) { return groups[c] && groups[c].length; })
+        .map(function (c) { return { name: c, videos: groups[c] }; });
+      if (uncategorized.length) rows.push({ name: "", videos: uncategorized });
+      return rows;
+    },
+
     /* ---- video mutations ---- */
     addVideo: function (video) {
       if (!video || !video.id) return false;
       if (Store.hasVideo(video.id)) return false;
+      var cat = registerCategory(video.category);
       state.videos.unshift({
         id: video.id,
         title: video.title || "",   // empty is allowed; the UI flags it as "needs a title"
         channel: video.channel || "",
         thumbnail: video.thumbnail || "",
         addedAt: video.addedAt || 0,
-        blocked: false
+        blocked: false,
+        category: cat
       });
       persist();
       return true;
+    },
+
+    addCategory: function (name) { registerCategory(name); persist(); },
+
+    setVideoCategory: function (id, name) {
+      var v = state.videos.find(function (x) { return x.id === id; });
+      if (!v) return;
+      v.category = registerCategory(name);
+      persist();
     },
 
     setBlocked: function (id, blocked) {
@@ -105,6 +152,7 @@
       if (!v) return;
       if (typeof patch.title === "string") v.title = patch.title.trim() || v.title;
       if (typeof patch.channel === "string") v.channel = patch.channel.trim();
+      if (typeof patch.category === "string") v.category = registerCategory(patch.category);
       persist();
     },
 
@@ -152,10 +200,27 @@
       if (!data || typeof data !== "object") throw new Error("Invalid file");
       state = {
         videos: Array.isArray(data.videos) ? data.videos : [],
+        categories: Array.isArray(data.categories) ? data.categories : [],
         blockedKeywords: Array.isArray(data.blockedKeywords) ? data.blockedKeywords : [],
         settings: Object.assign(clone(DEFAULTS.settings), data.settings || {})
       };
       persist();
+    },
+
+    /* Merge a starter pack ({ categories, videos }) without clobbering anything
+       the parent already added. Returns the number of new videos added. */
+    seedStarter: function (data) {
+      if (!data) return 0;
+      (data.categories || []).forEach(registerCategory);
+      var added = 0;
+      // addVideo() prepends, so add in reverse to keep each category's videos
+      // in the order they're listed in the starter file.
+      (data.videos || []).slice().reverse().forEach(function (v) {
+        if (Store.addVideo(v)) added++;
+      });
+      // addVideo already persisted; ensure categories with no video yet persist too.
+      persist();
+      return added;
     },
 
     clearAll: function () {

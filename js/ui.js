@@ -21,27 +21,39 @@
   }
 
   /* ===================== KID TIMELINE ===================== */
+  function cardHTML(v) {
+    return (
+      '<button class="card" data-id="' + esc(v.id) + '">' +
+        '<span class="card-thumb">' +
+          '<img src="' + esc(v.thumbnail || YT.thumbUrl(v.id)) + '" alt="" loading="lazy" decoding="async" ' +
+            'onerror="this.onerror=null;this.src=\'' + esc(YT.thumbUrl(v.id)) + '\'" />' +
+        '</span>' +
+        '<span class="card-title">' + esc(v.title || "Video") + '</span>' +
+      '</button>'
+    );
+  }
+
   function renderTimeline() {
-    var videos = Store.getVisibleVideos();
+    var rows = Store.getVisibleByCategory();
     var settings = Store.getSettings();
     els.brandName.textContent = settings.childName ? settings.childName + "'s Videos" : "KidVid";
 
-    if (!videos.length) {
+    var total = rows.reduce(function (n, r) { return n + r.videos.length; }, 0);
+    if (!total) {
       els.timeline.innerHTML = "";
       els.emptyState.classList.remove("hidden");
       return;
     }
     els.emptyState.classList.add("hidden");
 
-    els.timeline.innerHTML = videos.map(function (v) {
+    els.timeline.innerHTML = rows.map(function (row) {
+      var title = row.name || "More videos";
       return (
-        '<button class="card" data-id="' + esc(v.id) + '">' +
-          '<span class="card-thumb">' +
-            '<img src="' + esc(v.thumbnail || YT.thumbUrl(v.id)) + '" alt="" loading="lazy" decoding="async" ' +
-              'onerror="this.onerror=null;this.src=\'' + esc(YT.thumbUrl(v.id)) + '\'" />' +
-          '</span>' +
-          '<span class="card-title">' + esc(v.title || "Video") + '</span>' +
-        '</button>'
+        '<section class="cat-section">' +
+          '<h2 class="cat-title">' + esc(title) +
+            ' <span class="cat-count">' + row.videos.length + '</span></h2>' +
+          '<div class="row-scroll">' + row.videos.map(cardHTML).join("") + '</div>' +
+        "</section>"
       );
     }).join("");
   }
@@ -148,6 +160,7 @@
     renderManageList();
     renderKeywords();
     updateSearchAvailability();
+    populateCategoryOptions();
   }
 
   function loadSettingsIntoForm() {
@@ -172,6 +185,7 @@
       return;
     }
 
+    var category = els.addCategory.value.trim();
     els.bulkAdd.disabled = true;
     var apiKey = Store.getSettings().apiKey;
 
@@ -180,6 +194,7 @@
 
     YT.fetchMetaBatch(newIds, apiKey, function (meta) {
       // Called as each video's metadata resolves.
+      meta.category = category;
       if (Store.addVideo(meta)) {
         added++;
         if (!meta.title) noTitle++;
@@ -201,11 +216,45 @@
     if (noTitle) msg += " " + noTitle + " need a title — add one in Videos.";
     if (dupes) msg += " " + dupes + " were already added.";
     setAddStatus(msg, noTitle ? "" : "ok");
+    populateCategoryOptions();
     renderManageList();
   }
 
   function setAddStatus(msg, cls) {
     els.addStatus.innerHTML = msg ? '<span class="' + cls + '">' + esc(msg) + "</span>" : "";
+  }
+
+  function populateCategoryOptions() {
+    els.categoryOptions.innerHTML = Store.getCategories().map(function (c) {
+      return '<option value="' + esc(c) + '"></option>';
+    }).join("");
+  }
+
+  /* Load the bundled starter library (data/starter-library.json). */
+  function loadStarter(opts) {
+    opts = opts || {};
+    if (opts.button) opts.button.disabled = true;
+    if (!opts.silent) setSeed("Loading starter videos…", "");
+    return fetch("data/starter-library.json", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+      .then(function (data) {
+        var added = Store.seedStarter(data);
+        populateCategoryOptions();
+        renderTimeline();
+        renderManageList();
+        if (!opts.silent) {
+          setSeed(added ? "Added " + added + " starter video(s)." : "Starter videos are already in your library.", "ok");
+        }
+        if (added && !opts.silent) toast("Loaded " + added + " videos");
+      })
+      .catch(function () {
+        if (!opts.silent) setSeed("Couldn't load the starter pack — you need internet the first time.", "err");
+      })
+      .then(function () { if (opts.button) opts.button.disabled = false; });
+  }
+
+  function setSeed(msg, cls) {
+    els.seedStatus.innerHTML = msg ? '<span class="' + cls + '">' + esc(msg) + "</span>" : "";
   }
 
   function updateSearchAvailability() {
@@ -292,6 +341,7 @@
           '<div class="manage-info">' +
             '<div class="m-title' + (v.title ? "" : " untitled") + '">' + esc(v.title || "(no title)") + "</div>" +
             '<div class="m-channel">' + esc(v.channel || "") + "</div>" +
+            (v.category ? '<span class="cat-tag">' + esc(v.category) + "</span>" : "") +
             (badges ? '<div class="badge-row">' + badges + "</div>" : "") +
           "</div>" +
           '<div class="row-actions">' +
@@ -313,6 +363,8 @@
           '<input class="edit-title" type="text" value="' + esc(v.title) + '" placeholder="Video title" />' +
           '<label class="edit-label">Channel</label>' +
           '<input class="edit-channel" type="text" value="' + esc(v.channel || "") + '" placeholder="Channel (optional)" />' +
+          '<label class="edit-label">Category</label>' +
+          '<input class="edit-category" type="text" list="category-options" value="' + esc(v.category || "") + '" placeholder="Category (optional)" />' +
         "</div>" +
         '<div class="row-actions">' +
           '<button class="icon-btn save-edit">Save</button>' +
@@ -434,6 +486,8 @@
 
     // Add tab.
     els.bulkAdd.addEventListener("click", bulkAdd);
+    els.seedBtn.addEventListener("click", function () { loadStarter({ button: els.seedBtn }); });
+    els.emptySeed.addEventListener("click", function () { loadStarter({ button: els.emptySeed }); });
     els.searchBtn.addEventListener("click", doSearch);
     els.searchInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") doSearch();
@@ -444,11 +498,15 @@
       var row = e.target.closest(".result-row");
       var results = els.searchResults._results || [];
       var meta = results.find(function (r) { return r.id === row.dataset.id; });
-      if (meta && Store.addVideo(meta)) {
-        btn.textContent = "Added";
-        btn.disabled = true;
-        renderManageList();
-        toast("Added");
+      if (meta) {
+        meta.category = els.addCategory.value.trim();
+        if (Store.addVideo(meta)) {
+          btn.textContent = "Added";
+          btn.disabled = true;
+          populateCategoryOptions();
+          renderManageList();
+          toast("Added");
+        }
       }
     });
 
@@ -462,9 +520,11 @@
       if (e.target.closest(".save-edit")) {
         Store.updateVideo(id, {
           title: row.querySelector(".edit-title").value,
-          channel: row.querySelector(".edit-channel").value
+          channel: row.querySelector(".edit-channel").value,
+          category: row.querySelector(".edit-category").value
         });
         editingId = null;
+        populateCategoryOptions();
         renderManageList();
       } else if (e.target.closest(".cancel-edit")) {
         editingId = null;
@@ -530,6 +590,7 @@
       els = {
         timeline: $("timeline"),
         emptyState: $("empty-state"),
+        emptySeed: $("empty-seed"),
         brandName: $("brand-name"),
         openParent: $("open-parent"),
         toast: $("toast"),
@@ -547,6 +608,10 @@
         // add
         bulkInput: $("bulk-input"),
         bulkAdd: $("bulk-add"),
+        addCategory: $("add-category"),
+        categoryOptions: $("category-options"),
+        seedBtn: $("seed-btn"),
+        seedStatus: $("seed-status"),
         addStatus: $("add-status"),
         searchBox: $("search-box"),
         searchHint: $("search-hint"),
@@ -575,8 +640,15 @@
         clearBtn: $("clear-btn")
       };
       wire();
+      populateCategoryOptions();
       renderTimeline();
       YT.preload();
+
+      // First ever launch with nothing saved: auto-load the starter library so
+      // the app opens already full of videos.
+      if (Store.isFresh() && !Store.getVideos().length) {
+        loadStarter({ silent: true });
+      }
     }
   };
 
