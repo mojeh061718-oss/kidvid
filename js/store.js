@@ -9,11 +9,13 @@
     videos: [],            // { id, title, channel, thumbnail, addedAt, blocked, category }
     categories: [],        // ordered list of category names (defines home-screen row order)
     blockedKeywords: [],   // lowercase strings
+    recent: [],            // recently-watched video ids, newest first ("Keep Watching")
     settings: {
       pin: "6620",
       apiKey: "",
       childName: "",
-      autoplayNext: false
+      autoplayNext: false,
+      openInApp: false     // tap a video -> open the real YouTube app (uses Premium) instead of the safe embed
     }
   };
 
@@ -33,6 +35,7 @@
         videos: Array.isArray(data.videos) ? data.videos : [],
         categories: Array.isArray(data.categories) ? data.categories : [],
         blockedKeywords: Array.isArray(data.blockedKeywords) ? data.blockedKeywords : [],
+        recent: Array.isArray(data.recent) ? data.recent : [],
         settings: Object.assign(clone(DEFAULTS.settings), data.settings || {})
       };
     } catch (e) {
@@ -156,6 +159,22 @@
       persist();
     },
 
+    /* ---- recently watched ("Keep Watching") ---- */
+    markWatched: function (id) {
+      if (!id) return;
+      state.recent = [id].concat(state.recent.filter(function (x) { return x !== id; })).slice(0, 12);
+      persist();
+    },
+
+    /* Recently-watched videos that are still visible (blocked / keyword-hidden
+       ones are filtered out so they never resurface in the shortcut). */
+    getRecent: function () {
+      var vis = Store.getVisibleVideos();
+      return state.recent.map(function (id) {
+        return vis.find(function (v) { return v.id === id; });
+      }).filter(Boolean);
+    },
+
     /* The next visible video after `id` in the kid timeline (for autoplay-next). */
     nextVisibleAfter: function (id) {
       var vis = Store.getVisibleVideos();
@@ -202,6 +221,7 @@
         videos: Array.isArray(data.videos) ? data.videos : [],
         categories: Array.isArray(data.categories) ? data.categories : [],
         blockedKeywords: Array.isArray(data.blockedKeywords) ? data.blockedKeywords : [],
+        recent: Array.isArray(data.recent) ? data.recent : [],
         settings: Object.assign(clone(DEFAULTS.settings), data.settings || {})
       };
       persist();

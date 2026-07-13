@@ -20,7 +20,34 @@
     toast._t = setTimeout(function () { t.classList.add("hidden"); }, 2200);
   }
 
-  /* ===================== KID TIMELINE ===================== */
+  /* ===================== KID HOME (big show tiles) ===================== */
+  // A non-reader recognizes shows by picture + colour + emoji, not by name.
+  var SHOW_THEME = {
+    "Bluey": { emoji: "🐶", color: "#3AA0FF" },
+    "Max & Ruby": { emoji: "🐰", color: "#FF5C8A" },
+    "Disney Jr. Favorites": { emoji: "🏰", color: "#B14AED" },
+    "Paw Patrol": { emoji: "🐾", color: "#FF4D4D" },
+    "Calm & Cozy": { emoji: "🌙", color: "#4C63D2" },
+    "Gentle & Curious": { emoji: "🌱", color: "#2FBF71" },
+    "Dance Party": { emoji: "🎉", color: "#FF9F1C" }
+  };
+  var FALLBACK_THEME = [
+    { emoji: "⭐", color: "#5B2BE0" }, { emoji: "🎈", color: "#FF6B6B" },
+    { emoji: "🌈", color: "#12B5CB" }, { emoji: "🍿", color: "#E8590C" }
+  ];
+  var KEEP_THEME = { emoji: "▶", color: "#ff0033" };
+
+  function themeFor(row, i) {
+    if (row && row.keep) return KEEP_THEME;
+    var name = row && row.name;
+    return SHOW_THEME[name] || FALLBACK_THEME[i % FALLBACK_THEME.length];
+  }
+  function rowLabel(row) {
+    return row.keep ? "Keep Watching" : (row.name || "More videos");
+  }
+
+  var homeRows = [];   // captured at last renderHome(); openShow(idx) indexes into it
+
   function cardHTML(v) {
     return (
       '<button class="card" data-id="' + esc(v.id) + '">' +
@@ -33,8 +60,26 @@
     );
   }
 
-  function renderTimeline() {
+  function tileHTML(row, i) {
+    var t = themeFor(row, i);
+    var first = row.videos[0];
+    var thumb = (first && (first.thumbnail || YT.thumbUrl(first.id))) || "";
+    var fb = first ? YT.thumbUrl(first.id) : "";
+    return (
+      '<button class="show-tile' + (row.keep ? " keep-watching" : "") + '" data-idx="' + i + '" style="--tile:' + t.color + '">' +
+        '<span class="tile-thumb"><img src="' + esc(thumb) + '" alt="" loading="lazy" decoding="async" ' +
+          'onerror="this.onerror=null;this.src=\'' + esc(fb) + '\'" /></span>' +
+        '<span class="tile-emoji">' + t.emoji + '</span>' +
+        '<span class="tile-name">' + esc(rowLabel(row)) + '</span>' +
+      '</button>'
+    );
+  }
+
+  function renderHome() {
     var rows = Store.getVisibleByCategory();
+    var recent = Store.getRecent();
+    homeRows = recent.length ? [{ keep: true, videos: recent }].concat(rows) : rows;
+
     var settings = Store.getSettings();
     els.brandName.innerHTML = settings.childName
       ? esc(settings.childName) + "&#39;s Videos"
@@ -47,21 +92,41 @@
       return;
     }
     els.emptyState.classList.add("hidden");
+    els.timeline.innerHTML = homeRows.map(tileHTML).join("");
+  }
 
-    els.timeline.innerHTML = rows.map(function (row) {
-      var title = row.name || "More videos";
-      return (
-        '<section class="cat-section">' +
-          '<h2 class="cat-title">' + esc(title) +
-            ' <span class="cat-count">' + row.videos.length + '</span></h2>' +
-          '<div class="row-scroll">' + row.videos.map(cardHTML).join("") + '</div>' +
-        "</section>"
-      );
-    }).join("");
+  /* ===================== SHOW SCREEN (one show's videos) ===================== */
+  function openShow(idx) {
+    var row = homeRows[idx];
+    if (!row) return;
+    var t = themeFor(row, idx);
+    els.showView.style.setProperty("--tile", t.color);
+    els.showEmoji.textContent = t.emoji;
+    els.showName.textContent = rowLabel(row);
+    els.showGrid.innerHTML = row.videos.map(cardHTML).join("");
+    els.showGrid.scrollTop = 0;
+    els.showView.classList.remove("hidden");
+  }
+
+  function closeShow() {
+    renderHome();   // refresh so "Keep Watching" reflects what was just played
+    els.showView.classList.add("hidden");
+  }
+
+  /* Play a video: either the safe in-app embed, or (parent opt-in) the real
+     YouTube app, which honours Premium but leaves MaeTube's sandbox. */
+  function playVideo(v) {
+    if (Store.getSettings().openInApp) {
+      Store.markWatched(v.id);
+      window.location.href = "https://www.youtube.com/watch?v=" + encodeURIComponent(v.id);
+    } else {
+      openPlayer(v);   // openPlayer records the watch (covers autoplay-next too)
+    }
   }
 
   /* ===================== PLAYER ===================== */
   function openPlayer(video) {
+    Store.markWatched(video.id);
     els.playerTitle.textContent = video.title || "Video";
     els.playerOverlay.classList.remove("hidden");
     lockScroll(true);
@@ -137,6 +202,7 @@
 
   /* ===================== PARENT MENU ===================== */
   function openParentMenu() {
+    closeShow();   // always return to Home so home tile indices stay fresh
     els.parentMenu.classList.remove("hidden");
     lockScroll(true);
     switchTab("add");
@@ -146,7 +212,7 @@
   function closeParentMenu() {
     els.parentMenu.classList.add("hidden");
     lockScroll(false);
-    renderTimeline();
+    renderHome();
   }
 
   function switchTab(name) {
@@ -170,6 +236,7 @@
     els.childName.value = s.childName || "";
     els.apiKey.value = s.apiKey || "";
     els.autoplayNext.checked = !!s.autoplayNext;
+    els.openInApp.checked = !!s.openInApp;
     els.pinInput.value = "";
   }
 
@@ -242,7 +309,7 @@
       .then(function (data) {
         var added = Store.seedStarter(data);
         populateCategoryOptions();
-        renderTimeline();
+        renderHome();
         renderManageList();
         if (!opts.silent) {
           setSeed(added ? "Added " + added + " starter video(s)." : "Starter videos are already in your library.", "ok");
@@ -457,14 +524,22 @@
 
   /* ===================== EVENT WIRING ===================== */
   function wire() {
-    // Timeline card tap → play.
+    // Home tile tap → open that show's video grid.
     els.timeline.addEventListener("click", function (e) {
+      var tile = e.target.closest(".show-tile");
+      if (!tile) return;
+      openShow(parseInt(tile.dataset.idx, 10));
+    });
+
+    // Show-grid video tap → play (embed) or open in YouTube app.
+    els.showGrid.addEventListener("click", function (e) {
       var card = e.target.closest(".card");
       if (!card) return;
       var v = Store.getVideos().find(function (x) { return x.id === card.dataset.id; });
-      if (v) openPlayer(v);
+      if (v) playVideo(v);
     });
 
+    els.showHome.addEventListener("click", closeShow);
     els.playerBack.addEventListener("click", closePlayer);
 
     // Parent gate.
@@ -573,6 +648,9 @@
     els.autoplayNext.addEventListener("change", function () {
       Store.updateSettings({ autoplayNext: els.autoplayNext.checked });
     });
+    els.openInApp.addEventListener("change", function () {
+      Store.updateSettings({ openInApp: els.openInApp.checked });
+    });
     els.pinSave.addEventListener("click", savePin);
     els.apiSave.addEventListener("click", saveApiKey);
     els.exportBtn.addEventListener("click", exportBackup);
@@ -596,6 +674,12 @@
         brandName: $("brand-name"),
         openParent: $("open-parent"),
         toast: $("toast"),
+        // show screen
+        showView: $("show-view"),
+        showGrid: $("show-grid"),
+        showHome: $("show-home"),
+        showEmoji: $("show-emoji"),
+        showName: $("show-name"),
         // player
         playerOverlay: $("player-overlay"),
         playerBack: $("player-back"),
@@ -632,6 +716,7 @@
         // settings
         childName: $("child-name"),
         autoplayNext: $("autoplay-next"),
+        openInApp: $("open-in-app"),
         pinInput: $("pin-input"),
         pinSave: $("pin-save"),
         apiKey: $("api-key"),
@@ -643,7 +728,7 @@
       };
       wire();
       populateCategoryOptions();
-      renderTimeline();
+      renderHome();
       YT.preload();
 
       // First ever launch with nothing saved: auto-load the starter library so

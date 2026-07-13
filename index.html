@@ -24,9 +24,21 @@
       <button id="open-parent" class="gear-btn" aria-label="Parent menu" title="Parent menu">⚙️</button>
     </header>
 
-    <main id="timeline" class="timeline" aria-live="polite">
-      <!-- category rows injected here -->
+    <main id="timeline" class="home-grid" aria-live="polite">
+      <!-- big show tiles injected here -->
     </main>
+
+    <!-- SHOW SCREEN (level 2): one show's videos in a simple vertical grid -->
+    <section id="show-view" class="show-view hidden" aria-label="Show videos">
+      <header class="show-header">
+        <button id="show-home" class="home-btn"><span aria-hidden="true">🏠</span> Home</button>
+        <div class="show-heading">
+          <span class="show-emoji" id="show-emoji" aria-hidden="true"></span>
+          <span class="show-name" id="show-name"></span>
+        </div>
+      </header>
+      <div id="show-grid" class="show-grid"></div>
+    </section>
 
     <div id="empty-state" class="empty-state hidden">
       <div class="empty-emoji">🍿</div>
@@ -157,6 +169,16 @@
           <span>Automatically play the next video</span>
         </label>
         <p class="muted">Off (recommended): returns to the video grid so your child picks the next one — and YouTube's “related videos” end screen is never shown.</p>
+
+        <hr class="sep" />
+
+        <h2>Ads &amp; YouTube Premium</h2>
+        <p class="muted">YouTube always shows ads in embedded players, and Premium can't remove them here — that's a YouTube rule, not a MaeTube setting. MaeTube blocks the “up next / related videos” screen so your child never wanders off.</p>
+        <label class="toggle-row">
+          <input type="checkbox" id="open-in-app" />
+          <span>Open videos in the YouTube app</span>
+        </label>
+        <p class="muted"><strong>Off (recommended).</strong> When on, tapping a video leaves MaeTube and opens YouTube's own app, where your Premium removes ads — but your child also sees YouTube's autoplay, comments, and recommended videos, with none of MaeTube's blocking. Turn on only if you'll be watching together.</p>
 
         <hr class="sep" />
 
