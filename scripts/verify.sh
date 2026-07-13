@@ -15,9 +15,15 @@ for id in "${ids[@]}"; do
   fi
   title=$(echo "$oe" | sed -n 's/.*"title":"\(\([^"\\]\|\\.\)*\)".*/\1/p')
   chan=$(echo "$oe" | sed -n 's/.*"author_name":"\(\([^"\\]\|\\.\)*\)".*/\1/p')
-  html=$(curl -sS --max-time 25 "https://www.youtube.com/watch?v=$id" 2>/dev/null)
-  len=$(echo "$html" | grep -oE '"lengthSeconds":"[0-9]+"' | head -1 | grep -oE '[0-9]+')
-  emb=$(echo "$html" | grep -oE '"playableInEmbed":(true|false)' | head -1 | grep -oE '(true|false)')
+  # Watch page can be throttled; retry a few times until lengthSeconds appears.
+  len=""; emb=""
+  for attempt in 1 2 3; do
+    html=$(curl -sS --max-time 25 -H "Accept-Language: en-US" "https://www.youtube.com/watch?v=$id" 2>/dev/null)
+    len=$(echo "$html" | grep -oE '"lengthSeconds":"[0-9]+"' | head -1 | grep -oE '[0-9]+')
+    emb=$(echo "$html" | grep -oE '"playableInEmbed":(true|false)' | head -1 | grep -oE '(true|false)')
+    [ -n "$len" ] && break
+    sleep 1
+  done
   [ -z "$len" ] && len="-"
   [ "$emb" = "true" ] && emb="YES" || { [ "$emb" = "false" ] && emb="NO" || emb="?"; }
   printf '%s\t%s\t%s\t%s\t%s\n' "$id" "$len" "$emb" "$chan" "$title"

@@ -20,14 +20,25 @@ recommendation rabbit holes, no way to wander off into the rest of YouTube.
   zoomed, or scrolled off-screen — only the video rows scroll.
 
 **Starter library (loads automatically on first open)**
-KidVid ships with ~40 hand-picked, **verified** videos — every one is public,
-embeddable, and **over 6 minutes** (most are 30 minutes to several hours of
-full-episode compilations) — already sorted into categories:
-Bluey, Max & Ruby, Sofia the First, Paw Patrol, two low-stimulation categories
-(**Calm & Cozy**: Sarah & Duck, Puffin Rock, Tumble Leaf; **Gentle & Curious**:
-Kiri & Lou, Stillwater, Trash Truck, Go! Go! Cory Carson), and a **Dance Party**
-row (Danny Go! dance-along compilations). You can reload it any time from
-**Add → Starter pack**, and add your own videos into any category.
+KidVid ships with ~150 hand-picked, **verified** videos — every one is from an
+**official channel**, public, and **over 6 minutes** (most are 30 minutes to
+several hours of full-episode compilations) — with **25 videos in each show/
+category**:
+- **Bluey** (Bluey Official) · **Max & Ruby** (Treehouse Direct) ·
+  **Paw Patrol** (Nick Jr.)
+- **Calm & Cozy** low-stimulation: Sarah & Duck, Puffin Rock, Tumble Leaf
+- **Gentle & Curious** low-stimulation: Kiri & Lou, Stillwater, Trash Truck,
+  Go! Go! Cory Carson, Chico Bon Bon, Mighty Express
+- **Dance Party**: Danny Go!, The Kiboomers, The Wiggles dance-alongs
+- **Sofia the First**: only 3 videos — Disney keeps full Sofia episodes off
+  YouTube (they're on Disney+), so the only *official* long-form Sofia content
+  is a few Disney Jr. compilations. (The rest of YouTube's "Sofia" results are
+  AI/content-farm fakes, which are deliberately excluded.) Add your own trusted
+  Sofia links to grow this row.
+
+You can reload the pack any time from **Add → Starter pack**, and add your own
+videos into any category. The list was sourced and duration/availability-checked
+with `scripts/*.sh`.
 
 **For you (the parent menu — behind a PIN)**
 - **➕ Add** — paste one or many YouTube links at once (one per line) and pick a
@@ -80,7 +91,7 @@ your home network (`npx serve` / `python3 -m http.server` from this folder).
 
 ## First run
 
-- The default PIN is **1234** — change it in **Settings** right away.
+- The default PIN is **6620** — you can change it in **Settings**.
 - Add a few videos from the **Add** tab by pasting links, and you're set.
 
 ## Optional: search YouTube from inside the app

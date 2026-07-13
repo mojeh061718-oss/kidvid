@@ -10,7 +10,7 @@
     categories: [],        // ordered list of category names (defines home-screen row order)
     blockedKeywords: [],   // lowercase strings
     settings: {
-      pin: "1234",
+      pin: "6620",
       apiKey: "",
       childName: "",
       autoplayNext: false
