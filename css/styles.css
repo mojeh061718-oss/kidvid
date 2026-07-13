@@ -7,6 +7,7 @@
   --accent: #5b2be0;
   --accent-2: #ff4d8d;
   --accent-3: #ffd23f;
+  --yt-red: #ff0033;
   --text: #ffffff;
   --muted: #b9b4e0;
   --danger: #ff4d5e;
@@ -60,17 +61,21 @@ button { font-family: inherit; cursor: pointer; border: none; color: inherit; ba
   background: linear-gradient(180deg, rgba(18, 16, 42, 0.95), rgba(18, 16, 42, 0.6));
   backdrop-filter: blur(8px);
 }
-.brand { display: flex; align-items: center; gap: 10px; }
+.brand { display: flex; align-items: center; gap: 11px; }
+/* YouTube-style red play button on our dark theme */
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 40px; height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  font-size: 1.1rem;
-  box-shadow: var(--shadow);
+  width: 48px; height: 34px;
+  border-radius: 10px;
+  background: var(--yt-red);
+  color: #fff;
+  font-size: 1rem;
+  padding-left: 2px;              /* optically centre the play triangle */
+  box-shadow: 0 4px 14px rgba(255, 0, 51, 0.4);
 }
-.brand-name { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.5px; }
+.brand-name { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+.brand-name .tube { color: var(--yt-red); }
 .gear-btn {
   width: 46px; height: 46px;
   border-radius: 14px;

@@ -1,11 +1,11 @@
-# KidVid
+# MaeTube
 
 A safe, parent‑curated YouTube player for kids — built as an installable web app
 (PWA) you add to a tablet's home screen. Your child only ever sees the videos
 **you** approve, laid out as big tappable cards. No search bar, no
 recommendation rabbit holes, no way to wander off into the rest of YouTube.
 
-> You don't mind ads — KidVid uses YouTube's official embedded player, so videos
+> You don't mind ads — MaeTube uses YouTube's official embedded player, so videos
 > (and their ads) play exactly as they do on YouTube.
 
 ## What it does
@@ -20,7 +20,7 @@ recommendation rabbit holes, no way to wander off into the rest of YouTube.
   zoomed, or scrolled off-screen — only the video rows scroll.
 
 **Starter library (loads automatically on first open)**
-KidVid ships with **175 hand-picked, verified** videos — every one is from an
+MaeTube ships with **175 hand-picked, verified** videos — every one is from an
 **official channel**, public, and **over 6 minutes** (most are 30 minutes to
 several hours of full-episode compilations) — with **25 videos in each of the 7
 rows**:
@@ -61,7 +61,7 @@ with `scripts/*.sh`.
   add an optional API key, and export/import a backup of your whole library.
 
 **Safe by design**
-- When a video ends, KidVid immediately leaves the player, so YouTube's
+- When a video ends, MaeTube immediately leaves the player, so YouTube's
   “related videos” end screen is never shown or tappable.
 - The child view has no search box, no channel links, and no recommendations —
   only the videos you approved.
@@ -72,7 +72,7 @@ needed to fetch titles and play videos.
 
 ## Getting it onto a tablet
 
-KidVid is a static web app — host the folder anywhere that serves static files
+MaeTube is a static web app — host the folder anywhere that serves static files
 and open it on the tablet, then "Add to Home Screen".
 
 **Easiest: GitHub Pages (free)**
@@ -137,7 +137,7 @@ scripts/           discover.sh / verify.sh — how the starter list was sourced
   each video, case‑insensitively (`peppa` matches "Peppa Pig", "PEPPA", etc.).
 - Blocking is a one‑way gate the child can't undo — unblocking only happens in
   the PIN‑protected parent menu.
-- YouTube still decides what plays; KidVid controls *which* videos appear, not
+- YouTube still decides what plays; MaeTube controls *which* videos appear, not
   what happens if a video is later removed or made private on YouTube's side.
 - To move your library to another tablet, use **Settings → Export backup** and
   **Import backup**.

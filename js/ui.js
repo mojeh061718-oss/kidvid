@@ -36,7 +36,9 @@
   function renderTimeline() {
     var rows = Store.getVisibleByCategory();
     var settings = Store.getSettings();
-    els.brandName.textContent = settings.childName ? settings.childName + "'s Videos" : "KidVid";
+    els.brandName.innerHTML = settings.childName
+      ? esc(settings.childName) + "&#39;s Videos"
+      : 'Mae<span class="tube">Tube</span>';
 
     var total = rows.reduce(function (n, r) { return n + r.videos.length; }, 0);
     if (!total) {
@@ -425,7 +427,7 @@
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = "kidvid-backup.json";
+    a.download = "maetube-backup.json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

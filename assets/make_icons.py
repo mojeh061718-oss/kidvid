@@ -1,8 +1,9 @@
-"""Generate the KidVid PNG app icons to match assets/icon.svg.
+"""Generate the MaeTube PNG app icons to match assets/icon.svg.
+A YouTube-style red play button on the app's dark theme.
 Run: python3 make_icons.py   (requires Pillow)
 """
 from PIL import Image, ImageDraw
-import math, os
+import os
 
 SS = 4  # supersample factor for smooth edges
 
@@ -13,53 +14,46 @@ def lerp(a, b, t):
 
 def rounded_mask(size, radius):
     m = Image.new("L", (size, size), 0)
-    d = ImageDraw.Draw(m)
-    d.rounded_rectangle([0, 0, size - 1, size - 1], radius=radius, fill=255)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, size - 1, size - 1], radius=radius, fill=255)
     return m
 
 
 def make(size, maskable=False):
     S = size * SS
-    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
 
-    # Diagonal gradient background (#5b2be0 -> #ff4d8d).
-    c1, c2 = (0x5b, 0x2b, 0xe0), (0xff, 0x4d, 0x8d)
+    # Dark diagonal gradient background (#2b2166 -> #12102a) matching the app.
+    c1, c2 = (0x2b, 0x21, 0x66), (0x12, 0x10, 0x2a)
     grad = Image.new("RGB", (S, S))
     gpx = grad.load()
     for y in range(S):
         for x in range(S):
-            t = (x + y) / (2 * (S - 1))
-            gpx[x, y] = lerp(c1, c2, t)
+            gpx[x, y] = lerp(c1, c2, (x + y) / (2 * (S - 1)))
 
-    # Corner radius: rounded for normal icons; near-square for maskable
-    # (Android crops it into its own shape, so we fill the whole safe area).
+    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    # Maskable icons fill the whole tile (Android crops); others get rounded corners.
     radius = 0 if maskable else int(S * 0.22)
-    mask = rounded_mask(S, radius)
-    img.paste(grad, (0, 0), mask)
+    img.paste(grad, (0, 0), rounded_mask(S, radius))
 
-    cx = cy = S / 2
-
-    def p(px, py):
-        return (px / 512 * S, py / 512 * S)
-
-    # Draw the foreground on a transparent overlay, then alpha-composite so
-    # the translucent circle blends over the gradient instead of replacing it.
     overlay = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     od = ImageDraw.Draw(overlay)
 
-    # Soft circle behind the play button.
-    r = S * 0.293
-    od.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(255, 255, 255, 40))
-    # Play triangle (matches the SVG path proportions).
-    od.polygon([p(212, 176), p(212, 336), p(344, 256)], fill=(255, 255, 255, 255))
-    # Little accent dots.
-    def dot(px, py, rr, col):
-        cc = p(px, py)
-        rrr = rr / 512 * S
-        od.ellipse([cc[0] - rrr, cc[1] - rrr, cc[0] + rrr, cc[1] + rrr], fill=col)
-    dot(150, 150, 20, (255, 210, 63, 255))
-    dot(372, 372, 14, (255, 210, 63, 255))
+    def px(x, y):
+        return (x / 512 * S, y / 512 * S)
+
+    # Red rounded rectangle "play button" with a vertical red gradient.
+    rx0, ry0, rx1, ry1 = px(96, 150)[0], px(96, 150)[1], px(416, 362)[0], px(416, 362)[1]
+    red = Image.new("RGB", (S, S))
+    rpx = red.load()
+    for y in range(S):
+        rpx[0, y] = lerp((0xff, 0x2a, 0x58), (0xff, 0x00, 0x33), y / (S - 1))
+        for x in range(1, S):
+            rpx[x, y] = rpx[0, y]
+    rmask = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(rmask).rounded_rectangle([rx0, ry0, rx1, ry1], radius=54 / 512 * S, fill=255)
+    overlay.paste(red, (0, 0), rmask)
+
+    # White play triangle.
+    od.polygon([px(226, 212), px(226, 300), px(306, 256)], fill=(255, 255, 255, 255))
 
     img = Image.alpha_composite(img, overlay)
     return img.resize((size, size), Image.LANCZOS)

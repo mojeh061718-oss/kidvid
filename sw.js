@@ -1,8 +1,8 @@
-/* sw.js — caches the app shell so KidVid opens instantly and works offline.
+/* sw.js — caches the app shell so MaeTube opens instantly and works offline.
    Uses stale-while-revalidate: serve the cached copy immediately, then refresh
    it in the background so code updates reach installed devices on the next open.
    (YouTube playback itself always needs a network connection.) */
-var CACHE = "kidvid-shell-v5";
+var CACHE = "maetube-shell-v6";
 var SHELL = [
   "./",
   "./index.html",

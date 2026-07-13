@@ -1,6 +1,6 @@
 {
-  "name": "KidVid",
-  "short_name": "KidVid",
+  "name": "MaeTube",
+  "short_name": "MaeTube",
   "description": "A safe, parent-curated YouTube video player for kids.",
   "start_url": "./index.html",
   "scope": "./",
