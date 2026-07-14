@@ -21,24 +21,22 @@ recommendation rabbit holes, no way to wander off into the rest of YouTube.
 
 **Starter library (loads automatically on first open)**
 MaeTube ships with **175 hand-picked, verified** videos — every one is from an
-**official channel**, public, and **over 6 minutes** (most are 30 minutes to
-several hours of full-episode compilations) — with **25 videos in each of the 7
-rows**:
+**official channel** and public — 7 rows of shows:
 - **Bluey** (Bluey Official) · **Max & Ruby** (Treehouse Direct) ·
-  **Paw Patrol** (Nick Jr.)
+  **Paw Patrol** (Nick Jr.) — 25 long compilations each
+- **Princess Sofia**: 20 real, official **Disney Jr.** *Sofia the First* videos
+  (the two long compilations plus genuine clips, songs, and character intros).
+  Disney keeps full Sofia episodes on Disney+, so YouTube only has these official
+  Disney Jr. pieces — everything else labelled "Sofia" is AI/content-farm fakes,
+  which are deliberately excluded.
 - **Calm & Cozy** low-stimulation: Sarah & Duck, Puffin Rock, Tumble Leaf
 - **Gentle & Curious** low-stimulation: Kiri & Lou, Stillwater, Trash Truck,
   Go! Go! Cory Carson, Chico Bon Bon, Mighty Express
 - **Dance Party**: Danny Go!, The Kiboomers, The Wiggles dance-alongs
-- **Disney Jr. Favorites**: the 3 official Disney Jr. Sofia the First
-  compilations plus other official Disney Junior shows (Mira Royal Detective,
-  Fancy Nancy, Doc McStuffins, Alice's Wonderland Bakery, Mickey & Minnie,
-  Disney Junior songs). Disney keeps full Sofia episodes on Disney+, so this row
-  broadens to official Disney Jr. content rather than relying on the
-  AI/content-farm "Sofia" fakes that fill YouTube search (those are excluded).
 
-You can reload the pack any time from **Add → Starter pack**, and add your own
-videos into any category. The list was sourced and duration/availability-checked
+From **Add → Starter pack** you can **Load starter videos** (adds any missing) or
+**Reset to latest** (replaces the whole library with the newest version, keeping
+your PIN and blocked words). The list was sourced and duration/availability-checked
 with `scripts/*.sh`.
 
 **For you (the parent menu — behind a PIN)**

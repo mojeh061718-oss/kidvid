@@ -243,6 +243,15 @@
       return added;
     },
 
+    /* Empty the video library (keeps PIN, blocked words, and settings) so the
+       caller can re-seed the latest starter pack over the top. */
+    resetLibrary: function () {
+      state.videos = [];
+      state.categories = [];
+      state.recent = [];
+      persist();
+    },
+
     clearAll: function () {
       state = clone(DEFAULTS);
       persist();

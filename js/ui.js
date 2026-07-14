@@ -25,7 +25,7 @@
   var SHOW_THEME = {
     "Bluey": { emoji: "🐶", color: "#3AA0FF" },
     "Max & Ruby": { emoji: "🐰", color: "#FF5C8A" },
-    "Disney Jr. Favorites": { emoji: "🏰", color: "#B14AED" },
+    "Princess Sofia": { emoji: "👑", color: "#C74AE0" },
     "Paw Patrol": { emoji: "🐾", color: "#FF4D4D" },
     "Calm & Cozy": { emoji: "🌙", color: "#4C63D2" },
     "Gentle & Curious": { emoji: "🌱", color: "#2FBF71" },
@@ -326,6 +326,14 @@
     els.seedStatus.innerHTML = msg ? '<span class="' + cls + '">' + esc(msg) + "</span>" : "";
   }
 
+  /* Replace the whole library with the newest starter pack (keeps PIN, blocked
+     words, settings). Used to push a library update to an existing install. */
+  function resetToStarter() {
+    if (!confirm("Replace ALL videos with the latest MaeTube starter library?\n\nYour PIN, blocked words, and settings are kept — but any videos you added yourself will be removed.")) return;
+    Store.resetLibrary();
+    loadStarter({ button: els.resetBtn });
+  }
+
   function updateSearchAvailability() {
     var hasKey = !!Store.getSettings().apiKey;
     els.searchBox.classList.toggle("hidden", !hasKey);
@@ -564,6 +572,7 @@
     // Add tab.
     els.bulkAdd.addEventListener("click", bulkAdd);
     els.seedBtn.addEventListener("click", function () { loadStarter({ button: els.seedBtn }); });
+    els.resetBtn.addEventListener("click", resetToStarter);
     els.emptySeed.addEventListener("click", function () { loadStarter({ button: els.emptySeed }); });
     els.searchBtn.addEventListener("click", doSearch);
     els.searchInput.addEventListener("keydown", function (e) {
@@ -697,6 +706,7 @@
         addCategory: $("add-category"),
         categoryOptions: $("category-options"),
         seedBtn: $("seed-btn"),
+        resetBtn: $("reset-btn"),
         seedStatus: $("seed-status"),
         addStatus: $("add-status"),
         searchBox: $("search-box"),
