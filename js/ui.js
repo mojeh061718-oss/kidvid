@@ -46,8 +46,6 @@
     return row.keep ? "Keep Watching" : (row.name || "More videos");
   }
 
-  var homeRows = [];   // captured at last renderHome(); openShow(idx) indexes into it
-
   function cardHTML(v) {
     return (
       '<button class="card" data-id="' + esc(v.id) + '">' +
@@ -60,25 +58,12 @@
     );
   }
 
-  function tileHTML(row, i) {
-    var t = themeFor(row, i);
-    var first = row.videos[0];
-    var thumb = (first && (first.thumbnail || YT.thumbUrl(first.id))) || "";
-    var fb = first ? YT.thumbUrl(first.id) : "";
-    return (
-      '<button class="show-tile' + (row.keep ? " keep-watching" : "") + '" data-idx="' + i + '" style="--tile:' + t.color + '">' +
-        '<span class="tile-thumb"><img src="' + esc(thumb) + '" alt="" loading="lazy" decoding="async" ' +
-          'onerror="this.onerror=null;this.src=\'' + esc(fb) + '\'" /></span>' +
-        '<span class="tile-emoji">' + t.emoji + '</span>' +
-        '<span class="tile-name">' + esc(rowLabel(row)) + '</span>' +
-      '</button>'
-    );
-  }
-
+  /* Netflix-style: a vertical page of category rows, each a horizontal strip of
+     video cards. "Keep Watching" (recent) shows first when it has anything. */
   function renderHome() {
     var rows = Store.getVisibleByCategory();
     var recent = Store.getRecent();
-    homeRows = recent.length ? [{ keep: true, videos: recent }].concat(rows) : rows;
+    var allRows = recent.length ? [{ keep: true, videos: recent }].concat(rows) : rows;
 
     var settings = Store.getSettings();
     els.brandName.innerHTML = settings.childName
@@ -92,25 +77,20 @@
       return;
     }
     els.emptyState.classList.add("hidden");
-    els.timeline.innerHTML = homeRows.map(tileHTML).join("");
-  }
 
-  /* ===================== SHOW SCREEN (one show's videos) ===================== */
-  function openShow(idx) {
-    var row = homeRows[idx];
-    if (!row) return;
-    var t = themeFor(row, idx);
-    els.showView.style.setProperty("--tile", t.color);
-    els.showEmoji.textContent = t.emoji;
-    els.showName.textContent = rowLabel(row);
-    els.showGrid.innerHTML = row.videos.map(cardHTML).join("");
-    els.showGrid.scrollTop = 0;
-    els.showView.classList.remove("hidden");
-  }
-
-  function closeShow() {
-    renderHome();   // refresh so "Keep Watching" reflects what was just played
-    els.showView.classList.add("hidden");
+    els.timeline.innerHTML = allRows.map(function (row, i) {
+      var t = themeFor(row, i);
+      return (
+        '<section class="cat-section">' +
+          '<h2 class="cat-title">' +
+            '<span class="cat-emoji" style="background:' + t.color + '">' + t.emoji + "</span>" +
+            '<span class="cat-name">' + esc(rowLabel(row)) + "</span>" +
+            '<span class="cat-count">' + row.videos.length + "</span>" +
+          "</h2>" +
+          '<div class="row-scroll">' + row.videos.map(cardHTML).join("") + "</div>" +
+        "</section>"
+      );
+    }).join("");
   }
 
   /* Play a video: either the safe in-app embed, or (parent opt-in) the real
@@ -151,6 +131,11 @@
     YT.stop();
     els.playerOverlay.classList.add("hidden");
     lockScroll(false);
+    // Refresh so the "Keep Watching" row reflects what was just played, keeping
+    // the child's place in the page.
+    var y = els.timeline.scrollTop;
+    renderHome();
+    els.timeline.scrollTop = y;
   }
 
   function lockScroll(on) {
@@ -202,7 +187,6 @@
 
   /* ===================== PARENT MENU ===================== */
   function openParentMenu() {
-    closeShow();   // always return to Home so home tile indices stay fresh
     els.parentMenu.classList.remove("hidden");
     lockScroll(true);
     switchTab("add");
@@ -532,22 +516,14 @@
 
   /* ===================== EVENT WIRING ===================== */
   function wire() {
-    // Home tile tap → open that show's video grid.
+    // Video card tap → play (embed) or open in the YouTube app.
     els.timeline.addEventListener("click", function (e) {
-      var tile = e.target.closest(".show-tile");
-      if (!tile) return;
-      openShow(parseInt(tile.dataset.idx, 10));
-    });
-
-    // Show-grid video tap → play (embed) or open in YouTube app.
-    els.showGrid.addEventListener("click", function (e) {
       var card = e.target.closest(".card");
       if (!card) return;
       var v = Store.getVideos().find(function (x) { return x.id === card.dataset.id; });
       if (v) playVideo(v);
     });
 
-    els.showHome.addEventListener("click", closeShow);
     els.playerBack.addEventListener("click", closePlayer);
 
     // Parent gate.
@@ -683,12 +659,6 @@
         brandName: $("brand-name"),
         openParent: $("open-parent"),
         toast: $("toast"),
-        // show screen
-        showView: $("show-view"),
-        showGrid: $("show-grid"),
-        showHome: $("show-home"),
-        showEmoji: $("show-emoji"),
-        showName: $("show-name"),
         // player
         playerOverlay: $("player-overlay"),
         playerBack: $("player-back"),
