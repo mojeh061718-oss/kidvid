@@ -20,24 +20,26 @@ recommendation rabbit holes, no way to wander off into the rest of YouTube.
   zoomed, or scrolled off-screen — only the video rows scroll.
 
 **Starter library (loads automatically on first open)**
-MaeTube ships with **175 hand-picked, verified** videos — every one is from an
-**official channel** and public — 7 rows of shows:
-- **Bluey** (Bluey Official) · **Max & Ruby** (Treehouse Direct) ·
-  **Paw Patrol** (Nick Jr.) — 25 long compilations each
-- **Princess Sofia**: 20 real, official **Disney Jr.** *Sofia the First* videos
-  (the two long compilations plus genuine clips, songs, and character intros).
-  Disney keeps full Sofia episodes on Disney+, so YouTube only has these official
-  Disney Jr. pieces — everything else labelled "Sofia" is AI/content-farm fakes,
-  which are deliberately excluded.
+MaeTube ships with **154 videos — 22 per row across 7 shows** — chosen by real
+**YouTube view count** (the genuinely popular, most-watched videos) from
+**official channels only**, with livestream/24-7 loops, foreign-language
+uploads, and AI/content-farm re-uploads filtered out:
+- **Bluey** (Bluey Official) — popular full episodes ("The Pool", "Dad Baby") +
+  best-of compilations · **Max & Ruby** (Treehouse Direct) · **Paw Patrol**
+  (Nick Jr.)
+- **Princess Sofia**: official **Disney Jr.** *Sofia the First* clips, songs, and
+  compilations (Disney keeps full Sofia episodes on Disney+; everything else
+  labelled "Sofia" on YouTube is AI/content-farm fakes, excluded)
 - **Calm & Cozy** low-stimulation: Sarah & Duck, Puffin Rock, Tumble Leaf
-- **Gentle & Curious** low-stimulation: Kiri & Lou, Stillwater, Trash Truck,
-  Go! Go! Cory Carson, Chico Bon Bon, Mighty Express
-- **Dance Party**: Danny Go!, The Kiboomers, The Wiggles dance-alongs
+- **Gentle & Curious** low-stimulation: Go! Go! Cory Carson, Trash Truck,
+  Kiri & Lou
+- **Dance Party**: the most-watched kids dance-alongs — The Kiboomers
+  ("Party Freeze Dance", "Floor Is Lava"), Danny Go!, The Wiggles
 
 From **Add → Starter pack** you can **Load starter videos** (adds any missing) or
 **Reset to latest** (replaces the whole library with the newest version, keeping
-your PIN and blocked words). The list was sourced and duration/availability-checked
-with `scripts/*.sh`.
+your PIN and blocked words). The list is ranked by view count and
+availability-checked with `scripts/*.sh`.
 
 **For you (the parent menu — behind a PIN)**
 - **➕ Add** — paste one or many YouTube links at once (one per line) and pick a
